@@ -46,7 +46,7 @@ div.thermometers .details {
 
 div.thermometers .last-update {
     margin: 10px auto;
-    text-align: center;
+    text-align: left;
     width: 560px;
     font-size: 12px;
     font-family: 'Dosis';

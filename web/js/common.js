@@ -3,8 +3,8 @@ function getLastTempResult() {
   $.getJSON('/last/', function( data ) {
     if (typeof data != 'undefined') {
         ar=data[0].toString().split(".");
-        $("#temperature").html(  ar[0]  );
-        $("#temperature_decimal").html(  ar[1]  );
+        $("#sens_temp").html(  ar[0]  );
+        $("#sens_temp_decimal").html(  ar[1]  );
     }
   });
 }
