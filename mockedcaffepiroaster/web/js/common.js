@@ -32,8 +32,8 @@ function drawCurveTypes() {
                   title: 'Hour',
               },
               vAxis: {
-                  title: 'Celsius Degrees',
-              format:'##.#',
+                  title: 'Temperature',
+              format:'##',
               },
             };
             

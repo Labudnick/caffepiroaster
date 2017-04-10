@@ -1,0 +1,2 @@
+python /home/pi/Python_scripts/temp_stats.py >> /home/pi/Python_scripts/temp_stats.csv
+
