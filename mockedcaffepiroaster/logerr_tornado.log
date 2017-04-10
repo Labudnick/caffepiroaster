@@ -1,0 +1,17 @@
+WARNING:tornado.access:404 GET /day (127.0.0.1) 1.09ms
+WARNING:tornado.access:404 GET /temp (127.0.0.1) 0.48ms
+WARNING:tornado.access:404 GET /temp/ (127.0.0.1) 0.47ms
+Traceback (most recent call last):
+  File "/usr/lib/python2.7/runpy.py", line 174, in _run_module_as_main
+    "__main__", fname, loader, pkg_name)
+  File "/usr/lib/python2.7/runpy.py", line 72, in _run_code
+    exec code in run_globals
+  File "/usr/local/lib/python2.7/dist-packages/tornado/autoreload.py", line 339, in <module>
+    main()
+  File "/usr/local/lib/python2.7/dist-packages/tornado/autoreload.py", line 302, in main
+    exec_in(f.read(), globals(), globals())
+  File "<string>", line 10, in exec_in
+  File "<string>", line 36, in <module>
+  File "/usr/local/lib/python2.7/dist-packages/tornado/ioloop.py", line 862, in start
+    event_pairs = self._impl.poll(poll_timeout)
+KeyboardInterrupt
