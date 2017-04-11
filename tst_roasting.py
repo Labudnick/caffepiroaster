@@ -64,20 +64,22 @@ class Roaster():
 
 	# Innitiate fan
 	GPIO.output(relay_fan, relay_on)
-	print "GPIO.output(relay_fan, relay_on)"
 	licznik = 0
-	while not os.path.isfile(roast_stop_flag):
+	while not os.path.isfile(roast_stop_flag) and licznik <=5:
 	    licznik += 1
 	    time.sleep(1)
 	    if licznik >=5:
-		continue
+		break
 	print "Heating starts"
+
 	# Roasting with target temperature - currently fixed 205 Celsius deg.
-	while not os.path.isfile(roast_stop_flag):
+	while not (os.path.isfile(roast_stop_flag)):
 	    sens_temp = sensor.readTempC()
+	    print sens_temp
 	    # Fix temperature reading issues
-	    if (( sens_temp == 0) or (isNaN(sens_temp))):
-		time.sleep(1)
+	    while (( sens_temp == 0) or (isNaN(sens_temp))):
+		print "wykryto NaN"
+		time.sleep(0.1)
 		sens_temp = sensor.readTempC()
 	    if sens_temp > roasting_temp + roasting_delta:
 		roast = 1;
@@ -107,7 +109,16 @@ class Roaster():
 	GPIO.cleanup()
 	print 'Cooling down finished'
 
-    def end(self):
+    def end():
 	print 'roasting.end().start'
 	file.open(roast_stop_flag, 'W')
 	file.close()
+
+print "roasting module start"
+
+if not os.path.isfile(roast_stop_flag):
+    print "is not"
+
+xyz = Roaster().start()
+print xyz
+
