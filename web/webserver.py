@@ -2,6 +2,7 @@ import os,sys,inspect
 import tornado.ioloop
 import tornado.web
 import json
+import threading#, time
 
 # import from parent directory
 root = os.path.dirname(__file__)
@@ -9,25 +10,43 @@ os.chdir(root)
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0,parentdir) 
-from models import Sensors
 
+from models import Sensors
+from roasting import Roaster
+
+thr=threading.Thread(target=(Roaster().innitiate()))
 
 port = 8888
+
 class TempLast(tornado.web.RequestHandler):
     def get(self):
         data = Sensors().getLast();
-#        self.write(str(data[0]), str(data[1]), str(data[2]) )
         self.write(json.dumps(data))
 
-class TempDay(tornado.web.RequestHandler):
+class TempAll(tornado.web.RequestHandler):
     def get(self):
-      data = Sensors().getDay()
+      print "TempAll started"
+      data = Sensors().getAll()
       self.write(json.dumps(data))
+
+class RoastStart(tornado.web.RequestHandler):
+    def get(self):
+      print "RoastStart.get"
+      Roaster.start()
+      #self.write(json.dumps(data))
+
+class RoastEnd(tornado.web.RequestHandler):
+    def get(self):
+      print "RoastEnd.get"
+      Roaster().end()
+      #self.write(json.dumps(data))
 
 application = tornado.web.Application([
     (r"/last/", TempLast),
-    (r"/day/", TempDay),
-    (r"/(.*)", tornado.web.StaticFileHandler, {"path": root, "default_filename": "index.html"}),
+    (r"/all/", TempAll),
+    (r"/start/", RoastStart),
+    (r"/end/", RoastEnd),
+    (r"/(.*)", tornado.web.StaticFileHandler, {"path": root, "default_filename": "index.html"})
 ])
 
 
