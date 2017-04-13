@@ -14,7 +14,7 @@ sys.path.insert(0,parentdir)
 from models import Sensors
 from roasting import Roaster
 
-thr=threading.Thread(target=(Roaster().innitiate()))
+os.system("python " + parentdir + "/roast_daemon.py &")
 
 port = 8888
 
@@ -25,19 +25,19 @@ class TempLast(tornado.web.RequestHandler):
 
 class TempAll(tornado.web.RequestHandler):
     def get(self):
-      print "TempAll started"
+      #print "TempAll started"
       data = Sensors().getAll()
       self.write(json.dumps(data))
 
 class RoastStart(tornado.web.RequestHandler):
     def get(self):
-      print "RoastStart.get"
-      Roaster.start()
+      #print "RoastStart.get"
+      Roaster().start()
       #self.write(json.dumps(data))
 
 class RoastEnd(tornado.web.RequestHandler):
     def get(self):
-      print "RoastEnd.get"
+      #print "RoastEnd.get"
       Roaster().end()
       #self.write(json.dumps(data))
 

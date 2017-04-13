@@ -16,13 +16,18 @@ class Sensors():
         return c.fetchone()
 
     def getAll(self):
-      print 'models.getAll'
+      #print 'models.getAll'
       sql =  "select "
-      sql += "substr(datetime,12,4) || '0' as date, "
-      sql += "round(sens_temp, 2) as sens_temp, "
-      sql += "heat "
+      sql += "substr(datetime,3,4) || '0' as date, "
+      sql += "round(avg(sens_temp), 2) as sens_temp, "
+      sql += "round(avg(heat * 200), 0) as heat "
       sql += "from temp_reads "
-      sql += "order by id "
+      sql += "group by date"
+      #sql =  "select "
+      #sql += "substr(datetime,3,4) || '0' as date, "
+      #sql += "round(sens_temp, 2) as sens_temp, "
+      #sql += "heat*200 as heat "
+      #sql += "from temp_reads"
 #      print sql
       c.execute(sql)
       return c.fetchall()
@@ -31,4 +36,8 @@ class Sensors():
 #	print "models.InsertData"
 	c.execute("INSERT INTO temp_reads (sens_temp, datetime, heat)  VALUES ("+str(sens_temp)+",'"+datetime+"',"+str(heat)+")")
         conn.commit()
-	
+
+    def EraseData(self):
+        #print "Data erased"
+        c.execute('DELETE from temp_reads')
+        conn.commit()

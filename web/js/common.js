@@ -21,7 +21,7 @@ function drawCurveTypes() {
             var data = new google.visualization.DataTable();
             data.addColumn('string', 'Hour');
             data.addColumn('number', 'Temperature');
-	//    data.addColumn('number', 'Heating');
+            data.addColumn('number', 'Heating');
             data.addRows( jsondata );
 
             var options = {
@@ -30,11 +30,11 @@ function drawCurveTypes() {
 
               curveType: 'function',
               hAxis: {
-                  title: 'Hour',
+                  title: 'Process time',
               },
               vAxis: {
                   title: 'Celsius Degrees',
-              format:'##.#',
+                  format:'##.#',
               },
             };
 
@@ -49,7 +49,7 @@ ChartCounterDelay=0;
 setInterval(function() {
     getLastTempResult();
     ChartCounterDelay++;
-    if ( ChartCounterDelay == 100  ) {
+    if ( ChartCounterDelay == 5  ) {
         ChartCounterDelay=0;
         drawCurveTypes();
     }
