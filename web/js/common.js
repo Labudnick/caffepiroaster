@@ -1,105 +1,141 @@
-var myimgobj = document.images["jsbutton"];
-var jsbutton_clicked = 0;
-// -----------  get data result  ----------- 
-function getLastTempResult() {
+// ************* Current temperature chart *************
+// google.charts.load('current', {'packages':['gauge']});
+google.charts.load('current', {'packages':['gauge', 'line']});  //'corechart'
+google.charts.setOnLoadCallback(drawChart);
+
+function getCurrTemp() {
     $.getJSON('/last/', function( data ) {
         if (typeof data != 'undefined') {
-            ar=data[0].toString().split(".");
-            $("#sens_temp").html(  ar[0]  );
-            $("#sens_temp_decimal").html(  ar[1]  );
+            currtemp=data[0].toString()       
         }
     });
+    return currtemp;
 }
 
-// ----------- charts  ----------- 
-google.load('visualization', '1', {packages: ['corechart', 'line']});
-google.setOnLoadCallback(drawCurveTypes);
-
-function drawCurveTypes() {
+function getAllTemp() {
     $.getJSON('/all/', function( jsondata ) {
         if (typeof jsondata != 'undefined') {
-            var data = new google.visualization.DataTable();
-            data.addColumn('string', 'Hour');
+            data = new google.visualization.DataTable();
+            data.addColumn('string', 'Time');
             data.addColumn('number', 'Temperature');
             data.addColumn('number', 'Heating');
             data.addRows( jsondata );
-
-            var options = {
-                backgroundColor: { fill:'transparent' },
-              colors: ['#55f', '#5f5'],
-
-              curveType: 'function',
-              hAxis: {
-                  title: 'Process time',
-              },
-              vAxis: {
-                  title: 'Celsius Degrees',
-                  format:'##.#',
-              },
-            };
-
-            var chart = new google.visualization.LineChart(document.getElementById('chartdiv'));
-            chart.draw(data, options);
         }
     });
+    return data;
 }
 
-// ----------- auto refresh  ----------- 
-ChartCounterDelay=0;
-setInterval(function() {
-    getLastTempResult();
-    ChartCounterDelay++;
-    if ( ChartCounterDelay == 5  ) {
-        ChartCounterDelay=0;
-        drawCurveTypes();
-    }
-}, 1 * 1000); // n * 1000 milsec
+function drawChart() {
+    var dataGauge = google.visualization.arrayToDataTable([
+        ['Label', 'Value'],
+        ['Temp', 20]
+    ]);
+    
+    var optionsGauge = {
+        width: 600, height: 180,
+        redFrom: 230, redTo: 250,
+        yellowFrom: 210, yellowTo: 230,
+        minorTicks: 5,
+        majorTicks: ['20', '100', '150', '200', '250'],
+        min:20, max: 250
+    };
 
-$( window ).load(function() {
-    getLastTempResult();
-});
+    var chartGauge = new google.visualization.Gauge(document.getElementById('chart_div'));
+
+    chartGauge.draw(dataGauge, optionsGauge);
+  
+    var dataLine = google.visualization.arrayToDataTable([
+          ['Time', 'Temperature', 'Heating'],
+          ['0:00', 20, 0]
+        ]);
+
+//     var optionsLine = {
+//         title: 'Roast temperature chart',
+//         curveType: 'function',
+//         legend: { position: 'bottom' }
+//     };
+
+    var materialOptions = {
+        chart: {
+          title: 'Roast temperature and heating chart'
+        },
+        width: 600,
+        height: 300,
+        series: {
+          // Gives each series an axis name that matches the Y-axis below.
+          0: {axis: 'Temperature'},
+          1: {axis: 'Heating'}
+        },
+        axes: {
+          // Adds labels to each axis; they don't have to match the axis names.
+          y: {
+            Temperature: {label: 'Temperature (Celsius)'},
+            Heating: {label: 'Heating'}
+          }
+        }
+      };
+
+    var chartLine = new google.charts.Line(document.getElementById('curve_chart'));
+
+    chartLine.draw(dataLine, materialOptions);
+    
+    setInterval(function() {
+        chartLine.draw(getAllTemp(), materialOptions);
+        dataGauge.setValue(0, 1, getCurrTemp());
+        chartGauge.draw(dataGauge, optionsGauge);
+    }, 1*1000);
+        
+
+    
+//     setInterval(function() {
+//         dataLine.setValue(0, 1, getAllTemp());
+//         ch   art.draw(dataLine, options);
+//     }, 5*1000);
+}
+
+
+// ************* Roasting button ************* 
+var myimgobj = document.images["jsbutton"];
+var jsbutton_clicked = 0;
 
 function roastBTNclicked()
 {
     if ( jsbutton_clicked == 0 ) {
-    	document.images["jsbutton"].src= "btn_red.png";
-    	jsbutton_clicked = 1;
-    	$.ajax({
-        	type:'get',
-          	url:'/start/',
-      	  	cache:false,
-      	  	async:true,
-      	  	error: function(request, status, error) {
-      		 	alert(error);
-	  	}
-   	});
+        document.images["jsbutton"].src= "btn_red.png";
+        jsbutton_clicked = 1;
+        $.ajax({
+            type:'get',
+            url:'/start/',
+            cache:false,
+            async:true,
+            error: function(request, status, error) {
+                alert(error);
+            }
+        });
     }
     else {
         document.images["jsbutton"].src= "btn_green.png";
         jsbutton_clicked = 0;
-	$.ajax({
- 		type:'get',
-          	url:'/end/',
-          	cache:false,
-          	async:true,
-          	error: function(request, status, error) {
-                	alert(error);
-		}
+        $.ajax({
+            type:'get',
+                url:'/end/',
+                cache:false,
+                async:true,
+                error: function(request, status, error) {
+                        alert(error);
+            }
         });
 
     }
     return true;
 }
-function changeImageBack()
-{
-    document.images["jsbutton"].src = "btn_green.png";
-    return true;
-}
+
 function handleMDown()
 {
     document.images["jsbutton"].src = "btn_red.png";
     return true;
 }
+
 function handleMUp()
 {
     roastBTNclicked();

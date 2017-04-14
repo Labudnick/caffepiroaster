@@ -86,7 +86,7 @@ while True:
         print "--->Innitiate fan"
         #GPIO.output(relay_fan, relay_on)
         licznik = 0
-        while not os.path.isfile(roast_stop_flag) and licznik <=5:
+        while not os.path.isfile(roast_stop_flag) and licznik <=2:
             licznik += 1
             time.sleep(1)
 
