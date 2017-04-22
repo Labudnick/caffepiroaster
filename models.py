@@ -16,24 +16,15 @@ class Sensors():
         return c.fetchone()
 
     def getAll(self):
-      #print 'models.getAll'
       sql =  "select "
       sql += "substr(datetime,3,4) || '0' as date, "
-      sql += "round(avg(sens_temp), 2) as sens_temp, "
-      sql += "round(max(heat), 0) as heat "
+      sql += "round(sens_temp, 2) as sens_temp, "
+      sql += "heat "
       sql += "from temp_reads "
-      sql += "group by date"
-      #sql =  "select "
-      #sql += "substr(datetime,3,4) || '0' as date, "
-      #sql += "round(sens_temp, 2) as sens_temp, "
-      #sql += "heat*200 as heat "
-      #sql += "from temp_reads"
-#      print sql
       c.execute(sql)
       return c.fetchall()
 
     def InsertData(self, sens_temp, datetime, heat):
-#	print "models.InsertData"
 	c.execute("INSERT INTO temp_reads (sens_temp, datetime, heat)  VALUES ("+str(sens_temp)+",'"+datetime+"',"+str(heat)+")")
         conn.commit()
 

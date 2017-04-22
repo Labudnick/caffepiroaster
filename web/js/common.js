@@ -59,7 +59,7 @@ function drawChart() {
         chart: {
           title: 'Roast temperature and heating chart'
         },
-        width: 600,
+        width: 1000,
         height: 300,
         series: {
           // Gives each series an axis name that matches the Y-axis below.

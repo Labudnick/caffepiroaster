@@ -6,7 +6,6 @@ roast_stop_flag_fname = '.roast_stop_flag'
 roast_stop_flag = os.path.dirname(__file__) + '/' + roast_stop_flag_fname
 #print roast_stop_flag
 
-        
 class Roaster():
     def end(self):
         print '------>Stop roasting event'
