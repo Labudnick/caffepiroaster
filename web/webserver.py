@@ -41,6 +41,11 @@ class RoastEnd(tornado.web.RequestHandler):
       Roaster().end()
       #self.write(json.dumps(data))
 
+class RoastTempMax(tornado.web.RequestHandler):
+    def get(self):
+        data = Sensors().GetRoastTempMax()
+        self.write(json.dumps(data))
+
 application = tornado.web.Application([
     (r"/last/", TempLast),
     (r"/all/", TempAll),

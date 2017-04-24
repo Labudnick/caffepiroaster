@@ -50,14 +50,14 @@ roast_stop_flag = os.path.dirname(__file__) + '/' + roast_stop_flag_fname
 #    def readTempC(self):
 #	return round(random.uniform(20, 210), 2)
 
-def ScanTempWrite(starttm, lheat):
+def ScanTempWrite(starttm, lheat, lroasting):
     lsens_temp = sensor.readTempC()
     # Fix temperature reading issues
     while (( lsens_temp == 0) or (isNaN(lsens_temp))):
         time.sleep(0.1)
         lsens_temp = sensor.readTempC()
-    processtime=str(datetime.datetime.utcnow() - starttime).split('.', 2)[0]
-    Sensors().InsertData(lsens_temp, processtime, lheat)
+    processtime=str(datetime.datetime.utcnow() - starttm).split('.', 2)[0]
+    Sensors().InsertData(lsens_temp, processtime, lheat, lroasting)
     return lsens_temp
 
 print "--->Roasting process started on python side"
@@ -67,8 +67,11 @@ if not os.path.isfile(roast_stop_flag):
     file=open(roast_stop_flag, 'w')
     file.close()
 
+roasting = 0
+
 # Main loop
 while True:
+    sens_temp = ScanTempWrite(datetime.datetime.utcnow(), heat, roasting)
     if not os.path.isfile(roast_stop_flag):
         # Cleanse database
         Sensors().EraseData()
@@ -86,7 +89,8 @@ while True:
         starttime = datetime.datetime.utcnow()
 
         while not os.path.isfile(roast_stop_flag):
-            sens_temp = ScanTempWrite(starttime, heat)
+	    roasting = 1
+            sens_temp = ScanTempWrite(starttime, heat, roasting)
             if sens_temp > roasting_temp + roasting_delta:
                 heat = 0;
                 GPIO.output(relay_heater, relay_off)
@@ -99,11 +103,11 @@ while True:
         # Cooling down the roaster to set temperature
         heat = 0
         GPIO.output(relay_heater, relay_off)
-        sens_temp = ScanTempWrite(starttime, heat)
+        sens_temp = ScanTempWrite(starttime, heat, roasting)
         while sens_temp > cooldown_temp:
             time.sleep(1)
             sens_temp = ScanTempWrite(starttime, heat)
-
+	roasting = 0
         GPIO.output(relay_fan, relay_off)
         #GPIO.cleanup()
         print "--->Cooling down finished"

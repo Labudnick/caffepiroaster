@@ -1,7 +1,7 @@
 // ************* Current temperature chart *************
 // google.charts.load('current', {'packages':['gauge']});
 google.charts.load('current', {'packages':['gauge', 'line']});  //'corechart'
-google.charts.setOnLoadCallback(drawChart);
+google.charts.setOnLoadCallback(drawChartGauge);
 
 function getCurrTemp() {
     $.getJSON('/last/', function( data ) {
@@ -25,16 +25,16 @@ function getAllTemp() {
     return data;
 }
 
-function drawChart() {
+function drawChartGauge() {
     var dataGauge = google.visualization.arrayToDataTable([
         ['Label', 'Value'],
         ['Temp', 20]
     ]);
     
     var optionsGauge = {
-        width: 600, height: 180,
+        width: 300, height: 300,
         redFrom: 230, redTo: 250,
-        yellowFrom: 210, yellowTo: 230,
+        yellowFrom: 205, yellowTo: 230,
         minorTicks: 5,
         majorTicks: ['20', '100', '150', '200', '250'],
         min:20, max: 250
@@ -43,6 +43,18 @@ function drawChart() {
     var chartGauge = new google.visualization.Gauge(document.getElementById('chart_div'));
 
     chartGauge.draw(dataGauge, optionsGauge);
+  
+    setInterval(function() {
+        dataGauge.setValue(0, 1, getCurrTemp());
+        chartGauge.draw(dataGauge, optionsGauge);
+        RoastTempMax = getRoastTempMax();
+        arg = getRoastTempMax();
+        $("roasttempmaxfield").html(arg)
+    }, 1*1000);
+    
+}
+
+function drawChartLines() {
   
     var dataLine = google.visualization.arrayToDataTable([
           ['Time', 'Temperature', 'Heating'],
@@ -59,7 +71,7 @@ function drawChart() {
         chart: {
           title: 'Roast temperature and heating chart'
         },
-        width: 1000,
+        width: 900,
         height: 300,
         series: {
           // Gives each series an axis name that matches the Y-axis below.
@@ -81,16 +93,8 @@ function drawChart() {
     
     setInterval(function() {
         chartLine.draw(getAllTemp(), materialOptions);
-        dataGauge.setValue(0, 1, getCurrTemp());
-        chartGauge.draw(dataGauge, optionsGauge);
     }, 1*1000);
         
-
-    
-//     setInterval(function() {
-//         dataLine.setValue(0, 1, getAllTemp());
-//         ch   art.draw(dataLine, options);
-//     }, 5*1000);
 }
 
 
@@ -111,7 +115,8 @@ function roastBTNclicked()
             error: function(request, status, error) {
                 alert(error);
             }
-        });
+        })
+	google.charts.setOnLoadCallback(drawChartLines);
     }
     else {
         document.images["jsbutton"].src= "btn_green.png";
@@ -140,4 +145,14 @@ function handleMUp()
 {
     roastBTNclicked();
     return true;
+}
+
+function getRoastTempMax()
+{
+    $getJSON('/roasttempmax/', function( data ) {
+        if (typeof data != 'undefined') {
+            roastTempMax = data[0]
+        }
+    });
+    return roastTempMax;
 }
