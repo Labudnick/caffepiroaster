@@ -51,6 +51,7 @@ application = tornado.web.Application([
     (r"/all/", TempAll),
     (r"/start/", RoastStart),
     (r"/end/", RoastEnd),
+    (r"/roasttempmax/", RoastTempMax),
     (r"/(.*)", tornado.web.StaticFileHandler, {"path": root, "default_filename": "index.html"})
 ])
 

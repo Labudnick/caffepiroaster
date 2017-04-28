@@ -1,12 +1,28 @@
 // ************* Current temperature chart *************
-// google.charts.load('current', {'packages':['gauge']});
-google.charts.load('current', {'packages':['gauge', 'line']});  //'corechart'
+google.charts.load('current', {'packages':['gauge', 'line']});
 google.charts.setOnLoadCallback(drawChartGauge);
+
+//**************    Data access functions ********//
+function getRoastTempMax()  {
+    $.ajax({
+        type:'get',
+        url:'/roasttempmax/',
+        cache:false,
+        async:false,
+        success: function(data) {
+             roastTempMax = JSON.parse(data)[0].toString();
+        },
+        error: function(request, status, error) {
+            alert(error);
+        }
+    });
+    return roastTempMax;
+}
 
 function getCurrTemp() {
     $.getJSON('/last/', function( data ) {
-        if (typeof data != 'undefined') {
-            currtemp=data[0].toString()       
+        if (data) {
+            currtemp=data[0].toString();
         }
     });
     return currtemp;
@@ -14,7 +30,7 @@ function getCurrTemp() {
 
 function getAllTemp() {
     $.getJSON('/all/', function( jsondata ) {
-        if (typeof jsondata != 'undefined') {
+        if (jsondata) {
             data = new google.visualization.DataTable();
             data.addColumn('string', 'Time');
             data.addColumn('number', 'Temperature');
@@ -25,6 +41,7 @@ function getAllTemp() {
     return data;
 }
 
+//**************    Gauge chart for temperature measurements ********//
 function drawChartGauge() {
     var dataGauge = google.visualization.arrayToDataTable([
         ['Label', 'Value'],
@@ -47,13 +64,11 @@ function drawChartGauge() {
     setInterval(function() {
         dataGauge.setValue(0, 1, getCurrTemp());
         chartGauge.draw(dataGauge, optionsGauge);
-        RoastTempMax = getRoastTempMax();
-        arg = getRoastTempMax();
-        $("roasttempmaxfield").html(arg)
     }, 1*1000);
     
 }
 
+//**************    Line chart for roasting stats ********//
 function drawChartLines() {
   
     var dataLine = google.visualization.arrayToDataTable([
@@ -147,12 +162,7 @@ function handleMUp()
     return true;
 }
 
-function getRoastTempMax()
-{
-    $getJSON('/roasttempmax/', function( data ) {
-        if (typeof data != 'undefined') {
-            roastTempMax = data[0]
-        }
-    });
-    return roastTempMax;
-}
+//***************   On page load *****************//
+$('document').ready(function () {
+   $('#roasttempmaxfield').val(getRoastTempMax());
+});
