@@ -10,10 +10,10 @@ from models import Sensors
 
 
 # Variables
-roasting_temp = 205.00
-roasting_delta = 1.0
+roasting_temp = 225.00
+roasting_delta = 0
 heat = 0
-cooldown_temp = 25
+cooldown_temp = 30
 
 
 # NaN tester
@@ -86,10 +86,7 @@ while True:
         # Roast start process flag appeared
         print "--->Innitiate fan"
         # GPIO.output(relay_fan, relay_on)
-        licznik = 0
-        while not os.path.isfile(roast_stop_flag) and licznik <= 5:
-            licznik += 1
-            time.sleep(1)
+        time.sleep(1)
 
         # Roasting with target temperature.
         print "--->Heating starts"
@@ -109,12 +106,12 @@ while True:
         print '--->Cooling down started'
         # Cooling down the roaster to set temperature
         heat = 0
+        roasting = 0
         # GPIO.output(relay_heater, relay_off)
         sens_temp = ScanTempWrite(starttime, heat, roasting)
         while sens_temp > cooldown_temp:
             time.sleep(1)
-            sens_temp = ScanTempWrite(starttime, heat)
-        roasting = 0
+            sens_temp = ScanTempWrite(starttime, heat, roasting)
         # GPIO.output(relay_fan, relay_off)
         # GPIO.cleanup()
         print "--->Cooling down finished"

@@ -17,29 +17,29 @@ if (c.execute('SELECT count(*) from parameters').fetchone()[0] == 0):
 
 class Sensors():
     def getLast(self):
-	#print 'models.getLast'
-        c.execute('SELECT round(sens_temp, 2) FROM temp_reads ORDER BY id DESC LIMIT 1')
+        #print "models.Sensors().getLast"
+        c.execute('SELECT round(sens_temp, 2), datetime FROM temp_reads ORDER BY id DESC LIMIT 1')
         return c.fetchone()
 
     def getAll(self):
-      sql =  "select "
-      sql += "substr(datetime,3,4) || '0' as date, "
-      sql += "round(sens_temp, 2) as sens_temp, "
-      sql += "heat "
-      sql += "from temp_reads "
-      sql += "where roasting = 1 "
+        sql =  "select "
+        sql += "substr(datetime,3,4) || '0' as date, "
+        sql += "round(sens_temp, 2) as sens_temp, "
+        sql += "heat "
+        sql += "from temp_reads "
+        sql += "where roasting = 1 "
       
-      c.execute(sql)
-      return c.fetchall()
+        c.execute(sql)
+        return c.fetchall()
 
     def InsertData(self, sens_temp, datetime, heat, roasting):
-	sql = "INSERT INTO temp_reads (sens_temp, datetime, heat, roasting)  VALUES ("
-	sql += str(sens_temp) 
-	sql += ",'" + datetime
-	sql += "'," + str(heat) 
-	sql += "," + str(roasting) 
-	sql += ")"
-	c.execute(sql)
+        sql = "INSERT INTO temp_reads (sens_temp, datetime, heat, roasting)  VALUES ("
+        sql += str(sens_temp)
+        sql += ",'" + datetime
+        sql += "'," + str(heat)
+        sql += "," + str(roasting)
+        sql += ")"
+        c.execute(sql)
         conn.commit()
 
     def EraseData(self):

@@ -2,30 +2,31 @@
 google.charts.load('current', {'packages':['gauge', 'line']});
 google.charts.setOnLoadCallback(drawChartGauge);
 
+var chartLinesInterval;
+
 //**************    Data access functions ********//
 function getRoastTempMax()  {
     $.ajax({
         type:'get',
         url:'/roasttempmax/',
         cache:false,
-        async:false,
+        async:true,
         success: function(data) {
              roastTempMax = JSON.parse(data)[0].toString();
+             return roastTempMax;
         },
         error: function(request, status, error) {
             alert(error);
         }
     });
-    return roastTempMax;
+
 }
 
-function getCurrTemp() {
+function getCurrTemp(callback) {
     $.getJSON('/last/', function( data ) {
-        if (data) {
-            currtemp=data[0].toString();
-        }
+            callback(data);
+            console.log(data[0].toString())
     });
-    return currtemp;
 }
 
 function getAllTemp() {
@@ -62,10 +63,16 @@ function drawChartGauge() {
     chartGauge.draw(dataGauge, optionsGauge);
   
     setInterval(function() {
-        dataGauge.setValue(0, 1, getCurrTemp());
+        var currTime;
+        getCurrTemp(function(data) {
+            dataGauge.setValue(0, 1, data[0].toString());
+            //console.log(data[1].toString());
+            if (jsbutton_clicked==1) {
+                $('#timer').html('<h1>' + data[1].toString() + '</h1>');
+            };
+        });
         chartGauge.draw(dataGauge, optionsGauge);
     }, 1*1000);
-    
 }
 
 //**************    Line chart for roasting stats ********//
@@ -106,10 +113,9 @@ function drawChartLines() {
 
     chartLine.draw(dataLine, materialOptions);
     
-    setInterval(function() {
+    chartLinesInterval = setInterval(function() {
         chartLine.draw(getAllTemp(), materialOptions);
-    }, 1*1000);
-        
+    }, 1*5000);
 }
 
 
@@ -130,8 +136,9 @@ function roastBTNclicked()
             error: function(request, status, error) {
                 alert(error);
             }
-        })
-	google.charts.setOnLoadCallback(drawChartLines);
+        });
+	    google.charts.setOnLoadCallback(drawChartLines);
+
     }
     else {
         document.images["jsbutton"].src= "btn_green.png";
@@ -145,7 +152,7 @@ function roastBTNclicked()
                         alert(error);
             }
         });
-
+        clearInterval(chartLinesInterval);
     }
     return true;
 }
