@@ -1,5 +1,5 @@
 # import system libraries
-import os
+#import os
 import time, datetime
 import random
 from time import strftime
@@ -43,18 +43,9 @@ CS = 24
 DO = 18
 # sensor = MAX31855.MAX31855(CLK, CS, DO)
 
-
-# Roasting stop flag file definition
-roast_stop_flag_fname = '.roast_stop_flag'
-roast_stop_flag = os.path.dirname(__file__) + '/' + roast_stop_flag_fname
-
-
-# print roast_stop_flag
-
 class sensor():
     def readTempC(self):
         return round(random.uniform(20, 210), 2)
-
 
 def ScanTempWrite(starttm, lheat, lroasting):
     lsens_temp = sensor().readTempC()
@@ -62,27 +53,22 @@ def ScanTempWrite(starttm, lheat, lroasting):
     while ((lsens_temp == 0) or (isNaN(lsens_temp))):
         time.sleep(0.1)
         lsens_temp = sensor().readTempC()
-    processtime = str(datetime.datetime.utcnow() - starttm).split('.', 2)[0]
-    Sensors().InsertData(lsens_temp, processtime, lheat, lroasting)
+    processtime = str(datetime.datetime.utcnow() - starttm).split('.', 2)[0][2:]
+
+    Sensors().insertData(lsens_temp, processtime, lheat, lroasting)
     return lsens_temp
 
 
 print "--->Roasting process started on python side"
 
-# Create a flag that prevents roasting from starting
-if not os.path.isfile(roast_stop_flag):
-    file = open(roast_stop_flag, 'w')
-    file.close()
-
 roasting = 0
+# Cleanse database
+Sensors().eraseData()
 
 # Main loop
 while True:
     sens_temp = ScanTempWrite(datetime.datetime.utcnow(), heat, roasting)
-    if not os.path.isfile(roast_stop_flag):
-        # Cleanse database
-        Sensors().EraseData()
-
+    if Sensors().checkRoasting() > 0:
         # Roast start process flag appeared
         print "--->Innitiate fan"
         # GPIO.output(relay_fan, relay_on)
@@ -92,7 +78,7 @@ while True:
         print "--->Heating starts"
         starttime = datetime.datetime.utcnow()
 
-        while not os.path.isfile(roast_stop_flag):
+        while ( Sensors().checkRoasting() > 0 ):
             roasting = 1
             sens_temp = ScanTempWrite(starttime, heat, roasting)
             if sens_temp > roasting_temp + roasting_delta:

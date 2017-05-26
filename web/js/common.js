@@ -5,27 +5,15 @@ google.charts.setOnLoadCallback(drawChartGauge);
 var chartLinesInterval;
 
 //**************    Data access functions ********//
-function getRoastTempMax()  {
-    $.ajax({
-        type:'get',
-        url:'/roasttempmax/',
-        cache:false,
-        async:true,
-        success: function(data) {
-             roastTempMax = JSON.parse(data)[0].toString();
-             return roastTempMax;
-        },
-        error: function(request, status, error) {
-            alert(error);
-        }
+function getRoastTempMax(callback)  {
+    $.getJSON('/roasttempmax/', function( data ) {
+            callback(data);
     });
-
 }
 
 function getCurrTemp(callback) {
     $.getJSON('/last/', function( data ) {
             callback(data);
-            console.log(data[0].toString())
     });
 }
 
@@ -82,12 +70,6 @@ function drawChartLines() {
           ['Time', 'Temperature', 'Heating'],
           ['0:00', 20, 0]
         ]);
-
-//     var optionsLine = {
-//         title: 'Roast temperature chart',
-//         curveType: 'function',
-//         legend: { position: 'bottom' }
-//     };
 
     var materialOptions = {
         chart: {
@@ -171,5 +153,7 @@ function handleMUp()
 
 //***************   On page load *****************//
 $('document').ready(function () {
-   $('#roasttempmaxfield').val(getRoastTempMax());
+    getRoastTempMax(function(data) {
+        $('#roasttempmaxfield').val(data[0].toString());
+    });
 });

@@ -12,7 +12,6 @@ parentdir = os.path.dirname(currentdir)
 sys.path.insert(0,parentdir) 
 
 from models import Sensors
-from roasting import Roaster
 
 os.system("python " + parentdir + "/roast_daemon.py &")
 
@@ -32,18 +31,18 @@ class TempAll(tornado.web.RequestHandler):
 class RoastStart(tornado.web.RequestHandler):
     def get(self):
       #print "RoastStart.get"
-      Roaster().start()
+      Sensors().startRoasting()
       #self.write(json.dumps(data))
 
 class RoastEnd(tornado.web.RequestHandler):
     def get(self):
       #print "RoastEnd.get"
-      Roaster().end()
+      Sensors().endRoasting()
       #self.write(json.dumps(data))
 
 class RoastTempMax(tornado.web.RequestHandler):
     def get(self):
-        data = Sensors().GetRoastTempMax()
+        data = Sensors().getRoastTempMax()
         self.write(json.dumps(data))
 
 application = tornado.web.Application([
