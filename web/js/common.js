@@ -1,20 +1,25 @@
 // ************* Current temperature chart *************
-// google.charts.load('current', {'packages':['gauge']});
-google.charts.load('current', {'packages':['gauge', 'line']});  //'corechart'
-google.charts.setOnLoadCallback(drawChart);
+google.charts.load('current', {'packages':['gauge', 'line']});
+google.charts.setOnLoadCallback(drawChartGauge);
 
-function getCurrTemp() {
-    $.getJSON('/last/', function( data ) {
-        if (typeof data != 'undefined') {
-            currtemp=data[0].toString()       
-        }
+var chartLinesInterval;
+
+//**************    Data access functions ********//
+function getRoastTempMax(callback)  {
+    $.getJSON('/roasttempmax/', function( data ) {
+            callback(data);
     });
-    return currtemp;
+}
+
+function getCurrTemp(callback) {
+    $.getJSON('/last/', function( data ) {
+            callback(data);
+    });
 }
 
 function getAllTemp() {
     $.getJSON('/all/', function( jsondata ) {
-        if (typeof jsondata != 'undefined') {
+        if (jsondata) {
             data = new google.visualization.DataTable();
             data.addColumn('string', 'Time');
             data.addColumn('number', 'Temperature');
@@ -25,16 +30,17 @@ function getAllTemp() {
     return data;
 }
 
-function drawChart() {
+//**************    Gauge chart for temperature measurements ********//
+function drawChartGauge() {
     var dataGauge = google.visualization.arrayToDataTable([
         ['Label', 'Value'],
         ['Temp', 20]
     ]);
     
     var optionsGauge = {
-        width: 600, height: 180,
+        width: 300, height: 300,
         redFrom: 230, redTo: 250,
-        yellowFrom: 210, yellowTo: 230,
+        yellowFrom: 205, yellowTo: 230,
         minorTicks: 5,
         majorTicks: ['20', '100', '150', '200', '250'],
         min:20, max: 250
@@ -44,22 +50,32 @@ function drawChart() {
 
     chartGauge.draw(dataGauge, optionsGauge);
   
+    setInterval(function() {
+        var currTime;
+        getCurrTemp(function(data) {
+            dataGauge.setValue(0, 1, data[0].toString());
+            //console.log(data[1].toString());
+            if (jsbutton_clicked==1) {
+                $('#timer').html('<h1>' + data[1].toString() + '</h1>');
+            };
+        });
+        chartGauge.draw(dataGauge, optionsGauge);
+    }, 1*1000);
+}
+
+//**************    Line chart for roasting stats ********//
+function drawChartLines() {
+  
     var dataLine = google.visualization.arrayToDataTable([
           ['Time', 'Temperature', 'Heating'],
           ['0:00', 20, 0]
         ]);
 
-//     var optionsLine = {
-//         title: 'Roast temperature chart',
-//         curveType: 'function',
-//         legend: { position: 'bottom' }
-//     };
-
     var materialOptions = {
         chart: {
           title: 'Roast temperature and heating chart'
         },
-        width: 1000,
+        width: 900,
         height: 300,
         series: {
           // Gives each series an axis name that matches the Y-axis below.
@@ -79,18 +95,9 @@ function drawChart() {
 
     chartLine.draw(dataLine, materialOptions);
     
-    setInterval(function() {
+    chartLinesInterval = setInterval(function() {
         chartLine.draw(getAllTemp(), materialOptions);
-        dataGauge.setValue(0, 1, getCurrTemp());
-        chartGauge.draw(dataGauge, optionsGauge);
-    }, 1*1000);
-        
-
-    
-//     setInterval(function() {
-//         dataLine.setValue(0, 1, getAllTemp());
-//         ch   art.draw(dataLine, options);
-//     }, 5*1000);
+    }, 1*5000);
 }
 
 
@@ -103,6 +110,7 @@ function roastBTNclicked()
     if ( jsbutton_clicked == 0 ) {
         document.images["jsbutton"].src= "btn_red.png";
         jsbutton_clicked = 1;
+        $('#timer').html('<h1>00:00</h1>');
         $.ajax({
             type:'get',
             url:'/start/',
@@ -112,6 +120,8 @@ function roastBTNclicked()
                 alert(error);
             }
         });
+	    google.charts.setOnLoadCallback(drawChartLines);
+
     }
     else {
         document.images["jsbutton"].src= "btn_green.png";
@@ -125,7 +135,7 @@ function roastBTNclicked()
                         alert(error);
             }
         });
-
+        clearInterval(chartLinesInterval);
     }
     return true;
 }
@@ -141,3 +151,10 @@ function handleMUp()
     roastBTNclicked();
     return true;
 }
+
+//***************   On page load *****************//
+$('document').ready(function () {
+    getRoastTempMax(function(data) {
+        $('#roasttempmaxfield').val(data[0].toString());
+    });
+});
