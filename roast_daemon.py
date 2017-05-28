@@ -7,6 +7,8 @@ from models import Sensors
 import RPi.GPIO as GPIO
 import Adafruit_MAX31855.MAX31855 as MAX31855
 
+# import RPi.GPIO as GPIO
+# import Adafruit_MAX31855.MAX31855 as MAX31855
 
 # Variables
 roasting_temp = 225.00
@@ -35,11 +37,11 @@ GPIO.setmode(GPIO.BCM)
 GPIO.setup(relay_fan, GPIO.OUT, initial=relay_off)
 GPIO.setup(relay_heater, GPIO.OUT, initial=relay_off)
 
-
 # Raspberry Pi software SPI configuration.
 CLK = 25
 CS = 24
 DO = 18
+
 sensor = MAX31855.MAX31855(CLK, CS, DO)
 
 # class sensor():
@@ -52,6 +54,7 @@ def ScanTempWrite(starttm, lheat, lroasting):
     while ((lsens_temp == 0) or (isNaN(lsens_temp))):
         time.sleep(0.1)
         lsens_temp = sensor.readTempC()
+
     processtime = str(datetime.datetime.utcnow() - starttm).split('.', 2)[0][2:]
 
     Sensors().insertData(lsens_temp, processtime, lheat, lroasting)
@@ -71,6 +74,7 @@ while True:
         # Roast start process flag appeared
         print "--->Innitiate fan"
         GPIO.output(relay_fan, relay_on)
+
         time.sleep(1)
 
         # Roasting with target temperature.
@@ -82,21 +86,23 @@ while True:
             sens_temp = ScanTempWrite(starttime, heat, roasting)
             if sens_temp > roasting_temp + roasting_delta:
                 heat = 0;
-                GPIO.output(relay_heater, relay_off)
+                # GPIO.output(relay_heater, relay_off)
             elif sens_temp < roasting_temp - roasting_delta:
                 heat = 1
-                GPIO.output(relay_heater, relay_on)
+                # GPIO.output(relay_heater, relay_on)
             time.sleep(1)
 
         print '--->Cooling down started'
         # Cooling down the roaster to set temperature
         heat = 0
         roasting = 0
+
         GPIO.output(relay_heater, relay_off)
         sens_temp = ScanTempWrite(starttime, heat, roasting)
         while sens_temp > cooldown_temp:
             time.sleep(1)
             sens_temp = ScanTempWrite(starttime, heat, roasting)
+
         print "--->Cooling down finished"
         GPIO.output(relay_fan, relay_off)
     time.sleep(1)

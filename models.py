@@ -46,6 +46,7 @@ class Sensors():
             sql += ")"
             c.execute(sql)
         c.execute("UPDATE roast_process SET currtemp = " + str(sens_temp) + ", datetime = '" + datetime +"'")
+
         conn.commit()
 
     def eraseData(self):
