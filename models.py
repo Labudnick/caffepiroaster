@@ -38,7 +38,6 @@ class Sensors():
         return c.fetchall()
 
     def insertData(self, sens_temp, datetime, heat, roasting):
-        print datetime
         if roasting == 1:
             sql = "INSERT INTO temp_reads (sens_temp, datetime, heat)  VALUES ("
             sql += str(sens_temp)
@@ -47,10 +46,10 @@ class Sensors():
             sql += ")"
             c.execute(sql)
         c.execute("UPDATE roast_process SET currtemp = " + str(sens_temp) + ", datetime = '" + datetime +"'")
+
         conn.commit()
 
     def eraseData(self):
-        #print "Data erased"
         c.execute('DELETE from temp_reads')
         conn.commit()
 
@@ -58,11 +57,12 @@ class Sensors():
         return c.execute("SELECT param_value from parameters where param_name='roast_temp_max'").fetchone()
 
     def startRoasting(self):
-        c.execute("UPDATE roast_process SET status = 1")
+        c.execute("UPDATE roast_process SET datetime = '00:00', status = 1")
         conn.commit()
 
     def endRoasting(self):
         c.execute("UPDATE roast_process SET datetime = '00:00', status = 0")
+        c.execute('DELETE from temp_reads')
         conn.commit()
 
     def checkRoasting(self):

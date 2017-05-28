@@ -110,6 +110,7 @@ function roastBTNclicked()
     if ( jsbutton_clicked == 0 ) {
         document.images["jsbutton"].src= "btn_red.png";
         jsbutton_clicked = 1;
+        $('#timer').html('<h1>00:00</h1>');
         $.ajax({
             type:'get',
             url:'/start/',
