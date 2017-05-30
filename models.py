@@ -1,71 +1,101 @@
 import sqlite3
 import os
-import datetime
 
 root = os.path.dirname(__file__)
 conn = sqlite3.connect(root + '/caffepiroaster.db')
-
 c = conn.cursor()
-c.execute('CREATE TABLE IF NOT EXISTS temp_reads (id INTEGER PRIMARY KEY AUTOINCREMENT, sens_temp real, datetime string, heat number)')
-c.execute('DELETE from temp_reads')
-conn.commit()
-c.execute("CREATE TABLE IF NOT EXISTS roast_process (id INTEGER PRIMARY KEY AUTOINCREMENT, datetime STRING DEFAULT '00:00', status NUMBER, currtemp REAL)")
-if (c.execute("SELECT count(*) from roast_process").fetchone()[0] == 0):
-    c.execute("INSERT INTO roast_process (status) VALUES (0)")
+
+sql = "CREATE TABLE IF NOT EXISTS RoastStatus ( "
+sql += "Id          INTEGER PRIMARY KEY AUTOINCREMENT, "
+sql += "RoastLogId  INTEGER, "
+sql += "Time        STRING DEFAULT '00:00', "
+sql += "Temperature REAL, "
+sql += "Status      INTEGER DEFAULT 0, "
+sql += "Heating     INTEGER DEFAULT 0)"
+c.execute(sql)
+if c.execute("SELECT count(*) from RoastStatus").fetchone()[0] == 0:
+    c.execute("INSERT INTO RoastStatus (Status) VALUES (0)")
 else:
-    c.execute("UPDATE roast_process SET status=0 and datetime='00:00'")
+    c.execute("UPDATE RoastStatus SET Status=0 and Time='00:00'")
 conn.commit()
 
-c.execute('CREATE TABLE IF NOT EXISTS parameters (id INTEGER PRIMARY KEY AUTOINCREMENT, param_name STRING, param_value string)')
+sql = "CREATE TABLE IF NOT EXISTS RoastLog ( "
+sql += "Id INTEGER PRIMARY KEY AUTOINCREMENT, "
+sql += "DateTime DATETIME DEFAULT (datetime('now','localtime')), "
+sql += "Description STRING)"
+c.execute(sql)
 
-if (c.execute('SELECT count(*) from parameters').fetchone()[0] == 0):
-    c.execute("INSERT INTO parameters (param_name, param_value) values ('roast_temp_max', '225')")
+sql = "CREATE TABLE IF NOT EXISTS RoastDetails ("
+sql += "Id INTEGER PRIMARY KEY AUTOINCREMENT, "
+sql += "Time STRING, "
+sql += "Heating NUMBER, "
+sql += "TempRead REAL, "
+sql += "TempSet REAL, "
+sql += "RoastLogId INTEGER, "
+sql += "FOREIGN KEY (RoastLogId) REFERENCES RoastLog(Id))"
+c.execute(sql)
+
+c.execute("CREATE INDEX IF NOT EXISTS idx_RoastDetails ON RoastDetails(RoastLogId)")
+
+c.execute('CREATE TABLE IF NOT EXISTS parameters (id INTEGER PRIMARY KEY AUTOINCREMENT, name STRING, value STRING)')
+if c.execute('SELECT count(*) from parameters').fetchone()[0] == 0:
+    c.execute("INSERT INTO parameters (name, value) values ('roast_temp_max', '225')")
     conn.commit()
 
-class Sensors():
-    def getLast(self):
-        c.execute('SELECT round(currtemp, 2), datetime FROM roast_process LIMIT 1')
+
+class DataAccess:
+    def getcurrentstate(self):
+        sqlq = "SELECT round(Temperature, 2) as Temperature, Time, Status, Heating, RoastLogId FROM RoastStatus LIMIT 1"
+        c.execute(sqlq)
         return c.fetchone()
 
-    def getAll(self):
-        sql = "select "
-        sql += "datetime as date, "
-        sql += "round(sens_temp, 2) as sens_temp, "
-        sql += "heat "
-        sql += "from temp_reads "
-      
-        c.execute(sql)
-        return c.fetchall()
+    def getroastdatabyid(self):
+        retval = ""
+        if roastlogid:
+            sqlq = "SELECT "
+            sqlq += "    Time, "
+            sqlq += "    Heating, "
+            sqlq += "    round(TempRead, 2) as TempRead, "
+            sqlq += "    TempSet "
+            sqlq += "FROM RoastDetails "
+            sqlq += "WHERE RoastLogId IN (SELECT RoastLogId FROM RoastStatus)"
 
-    def insertData(self, sens_temp, datetime, heat, roasting):
+            c.execute(sqlq)
+            retval = c.fetchall()
+        return retval
+
+    def insertroastdetails(self, roastlogid, time, heating, tempread, tempset, roasting):
         if roasting == 1:
-            sql = "INSERT INTO temp_reads (sens_temp, datetime, heat)  VALUES ("
-            sql += str(sens_temp)
-            sql += ",'" + datetime
-            sql += "'," + str(heat)
-            sql += ")"
-            c.execute(sql)
-        c.execute("UPDATE roast_process SET currtemp = " + str(sens_temp) + ", datetime = '" + datetime +"'")
-
+            sqlq = "INSERT INTO RoastDetails (roastlogid, time, heating, tempread, tempset)  VALUES ("
+            sqlq += str(roastlogid) + ", "
+            sqlq += "'" + time + "', "
+            sqlq += str(heating) + ", "
+            sqlq += str(tempread) + ", "
+            sqlq += str(tempset) + ")"
+            c.execute(sqlq)
+        sqlq = "UPDATE RoastStatus SET "
+        sqlq += "Time = '" + str(time) + "', "
+        sqlq += "Temperature = " + str(tempread) + ", "
+        sqlq += "Heating = " + str(heating)
+        c.execute(sqlq)
         conn.commit()
 
-    def eraseData(self):
-        c.execute('DELETE from temp_reads')
+    def getroasttempmax(self):
+        return c.execute("SELECT value FROM Parameters WHERE name='roast_temp_max'").fetchone()
+
+    def startroasting(self, description):
+        c.execute("INSERT INTO RoastLog (Description) VALUES ('" + description + "')")
+        lastrowid = c.lastrowid
+        sqlq = "UPDATE RoastStatus SET "
+        sqlq += "Status = 1, "
+        sqlq += "RoastLogId = " + str(lastrowid)
+        c.execute(sqlq)
         conn.commit()
 
-    def getRoastTempMax(self):
-        return c.execute("SELECT param_value from parameters where param_name='roast_temp_max'").fetchone()
-
-    def startRoasting(self):
-        c.execute("UPDATE roast_process SET datetime = '00:00', status = 1")
+    def endroasting(self):
+        c.execute("UPDATE RoastStatus SET Time = '00:00', Status = 0, RoastLogId = ''")
         conn.commit()
 
-    def endRoasting(self):
-        c.execute("UPDATE roast_process SET datetime = '00:00', status = 0")
-        c.execute('DELETE from temp_reads')
-        conn.commit()
-
-    def checkRoasting(self):
-        c.execute("SELECT status FROM roast_process LIMIT 1")
-        return c.fetchone()[0]
-
+    def checkroasting(self):
+        c.execute("SELECT Status, Temperature, RoastLogId FROM RoastStatus LIMIT 1")
+        return c.fetchone()

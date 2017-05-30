@@ -1,0 +1,32 @@
+storyReadCurrentSensorTemperature
+	I would like to see current temperature readout on the gauge to know what is the temperature before and during roasting and during cool down.
+
+storyReadProcessTime
+	I would like to see how long has current process already taken to be able to stop it in a right moment.
+
+storyMarkFirstCrackTime
+	I would like to record the first crack time to properly calculate roasting process stages and when to stop roasting.
+	 
+caseSetRoastingTemperature
+	I would like to set maximum roasting temperature before the roast to keep proper roasting level.
+	
+caseSetRoastingParametersAndDescription
+	I would like to save caffee beans and roasting process description to be able to review historical roastings and improve them.
+	
+caseAddNoticesToPastRoasts
+	I would like to add some notes to past roasts after some time to be able to review roasting after tasting and chose best roast styles.
+	
+caseStartRoasting
+	I would like to manualy start roasting process to be able to roast caffe
+
+caseStopRoasting
+	I would like to manualy stop roasting to be able to control the process start and ending on the go.
+	
+caseViewPastRoasts
+	I would like to be able to view past roasts list to be able to view, and notes and reuse the roast
+	 
+caseViewPastRoastDetails
+	I would like to view a chosen past roast to analyze the temperatures and view or add some notes to the process and to process beans in the same way.
+
+caseTurnOffSystem
+	I would like to turn off the system to be able to switch the roaster off without logging in SSH.
