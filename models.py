@@ -9,7 +9,8 @@ sql = "CREATE TABLE IF NOT EXISTS RoastStatus ( "
 sql += "Id          INTEGER PRIMARY KEY AUTOINCREMENT, "
 sql += "RoastLogId  INTEGER, "
 sql += "Time        STRING DEFAULT '00:00', "
-sql += "Temperature REAL, "
+sql += "TempRead    REAL, "
+sql += "TempSet     REAL, "
 sql += "Status      INTEGER DEFAULT 0, "
 sql += "Heating     INTEGER DEFAULT 0)"
 c.execute(sql)
@@ -45,51 +46,46 @@ if c.execute('SELECT count(*) from parameters').fetchone()[0] == 0:
 
 class DataAccess:
     def getcurrentstate(self):
-        sqlq = "SELECT round(Temperature, 2) as Temperature, Time, Status, Heating, RoastLogId FROM RoastStatus LIMIT 1"
+        sqlq = "SELECT round(TempRead, 2) as TempRead, Time, Status, Heating, RoastLogId FROM RoastStatus LIMIT 1"
         c.execute(sqlq)
         return c.fetchone()
 
-    def getroastdatabyid(self):
-        retval = ""
-        if roastlogid:
-            sqlq = "SELECT "
-            sqlq += "    Time, "
-            sqlq += "    Heating, "
-            sqlq += "    round(TempRead, 2) as TempRead, "
-            sqlq += "    TempSet "
-            sqlq += "FROM RoastDetails "
-            sqlq += "WHERE RoastLogId IN (SELECT RoastLogId FROM RoastStatus)"
+    def getcurrentroastdata(self):
+        sqlq = "SELECT "
+        sqlq += "    Time, "
+        sqlq += "    Heating, "
+        sqlq += "    round(TempRead, 2) as TempRead, "
+        sqlq += "    TempSet "
+        sqlq += "FROM RoastDetails "
+        sqlq += "WHERE RoastLogId IN (SELECT RoastLogId FROM RoastStatus)"
 
-            c.execute(sqlq)
-            retval = c.fetchall()
-        return retval
+        c.execute(sqlq)
+        return c.fetchall()
 
     def insertroastdetails(self, roastlogid, time, heating, tempread, tempset, roasting):
         if roasting == 1:
-            sqlq = "INSERT INTO RoastDetails (roastlogid, time, heating, tempread, tempset)  VALUES ("
-            sqlq += str(roastlogid) + ", "
-            sqlq += "'" + time + "', "
-            sqlq += str(heating) + ", "
-            sqlq += str(tempread) + ", "
-            sqlq += str(tempset) + ")"
-            c.execute(sqlq)
+            sqlq = "INSERT INTO RoastDetails (roastlogid, time, heating, tempread, tempset)  VALUES (?, ?, ?, ?, ?)"
+            c.execute(sqlq, (str(roastlogid), time, str(heating), str(tempread), str(tempset)))
+
         sqlq = "UPDATE RoastStatus SET "
-        sqlq += "Time = '" + str(time) + "', "
-        sqlq += "Temperature = " + str(tempread) + ", "
-        sqlq += "Heating = " + str(heating)
-        c.execute(sqlq)
+        sqlq += "Time = ?, "
+        sqlq += "TempRead = ?, "
+        sqlq += "Heating = ?"
+        c.execute(sqlq, (time, str(tempread), str(heating)))
         conn.commit()
 
     def getroasttempmax(self):
         return c.execute("SELECT value FROM Parameters WHERE name='roast_temp_max'").fetchone()
 
-    def startroasting(self, description):
-        c.execute("INSERT INTO RoastLog (Description) VALUES ('" + description + "')")
+    def startroasting(self, tempset, description):
+        sqlq = "INSERT INTO RoastLog (Description) VALUES (?)"
+        c.execute(sqlq, (description,))
         lastrowid = c.lastrowid
         sqlq = "UPDATE RoastStatus SET "
         sqlq += "Status = 1, "
-        sqlq += "RoastLogId = " + str(lastrowid)
-        c.execute(sqlq)
+        sqlq += "RoastLogId = ?, "
+        sqlq += "TempSet = ?"
+        c.execute(sqlq, (lastrowid, str(tempset)))
         conn.commit()
 
     def endroasting(self):
@@ -97,5 +93,5 @@ class DataAccess:
         conn.commit()
 
     def checkroasting(self):
-        c.execute("SELECT Status, Temperature, RoastLogId FROM RoastStatus LIMIT 1")
+        c.execute("SELECT status, tempread, tempset, roastlogid FROM roaststatus LIMIT 1")
         return c.fetchone()

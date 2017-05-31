@@ -14,21 +14,14 @@ function getRoastTempMax( callback)  {
 
 function getCurrTemp(callback) {
     $.getJSON('/last/', function( data ) {
-            callback(data);
+            callback( data );
     });
 }
 
-function getAllTemp(RoastLogId) {
-    $.getJSON('/all/', function( jsondata ) {
-        if (jsondata) {
-            data = new google.visualization.DataTable();
-            data.addColumn('string', 'Time');
-            data.addColumn('number', 'Temperature');
-            data.addColumn('number', 'Heating');
-            data.addRows( jsondata );
-        }
+function getAllTemp(callback) {
+    $.getJSON('/all/', function( data ) {
+        callback( data );
     });
-    return data;
 }
 
 //**************    Gauge chart for temperature measurements ********//
@@ -68,8 +61,7 @@ function drawChartGauge() {
 function drawChartLines() {
   
     var dataLine = google.visualization.arrayToDataTable([
-          ['Time', 'Temperature', 'Heating'],
-          ['0:00', 20, 0]
+          ['Time', 'Heating', 'Temperature', 'Temperature Set']
         ]);
 
     var materialOptions = {
@@ -80,8 +72,9 @@ function drawChartLines() {
         height: 300,
         series: {
           // Gives each series an axis name that matches the Y-axis below.
-          0: {axis: 'Temperature'},
-          1: {axis: 'Heating'}
+          0: {axis: 'Heating'},
+          1: {axis: 'Temperature'},
+          2: {axis: 'Temperature Set'}
         },
         axes: {
           // Adds labels to each axis; they don't have to match the axis names.
@@ -97,7 +90,15 @@ function drawChartLines() {
     //chartLine.draw(dataLine, materialOptions);
     
     chartLinesInterval = setInterval(function() {
-        chartLine.draw(getAllTemp(), materialOptions);
+        getAllTemp(function(data) {
+            var tempData = new google.visualization.DataTable();
+            tempData.addColumn('string', 'Time');
+            tempData.addColumn('number', 'Heating');
+            tempData.addColumn('number', 'Temperature');
+            tempData.addColumn('number', 'Temperature Set');
+            tempData.addRows( data );
+            chartLine.draw(tempData, materialOptions);
+        });
     }, 1*5000);
 }
 
@@ -112,10 +113,11 @@ function roastBTNclicked()
         document.images["jsbutton"].src= "btn_red.png";
         jsbutton_clicked = 1;
         $('#timer').html('<h1>00:00</h1>');
+        var tempSet = $('#roasttempmaxfield').val();
         $.ajax({
             type:'get',
             url:'/start/',
-            data: {"description": "test description"},
+            data: {"description": "test description", "tempset":tempSet},
             cache:false,
             async:true,
             error: function(request, status, error) {

@@ -27,14 +27,15 @@ class TempLast(tornado.web.RequestHandler):
 
 class TempAll(tornado.web.RequestHandler):
     def get(self):
-        data = DataAccess().getroastdatabyid(roastlogid)
+        data = DataAccess().getcurrentroastdata()
         self.write(json.dumps(data))
 
 
 class RoastStart(tornado.web.RequestHandler):
     def get(self):
         description = self.get_argument("description", None, True)
-        DataAccess().startroasting(description)
+        tempset = self.get_argument("tempset", None, True)
+        DataAccess().startroasting(tempset, description)
 
 
 class RoastEnd(tornado.web.RequestHandler):
