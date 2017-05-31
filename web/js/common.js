@@ -7,7 +7,7 @@ var roastLogId;
 
 //**************    Data access functions ********//
 function getRoastTempMax( callback)  {
-    $.getJSON('/roasttempmax/', function( data ) {
+    $.getJSON('/getroasttempmax/', function( data ) {
             callback(data);
     });
 }
@@ -113,7 +113,7 @@ function roastBTNclicked()
         document.images["jsbutton"].src= "btn_red.png";
         jsbutton_clicked = 1;
         $('#timer').html('<h1>00:00</h1>');
-        var tempSet = $('#roasttempmaxfield').val();
+        var tempSet = $('#roasttempmaxinput').val();
         $.ajax({
             type:'get',
             url:'/start/',
@@ -155,9 +155,27 @@ function handleMUp()
     return true;
 }
 
+
+
 //***************   On page load *****************//
 $('document').ready(function () {
     getRoastTempMax(function(data) {
-        $('#roasttempmaxfield').val(data[0].toString());
+        $('#roasttempmaxinput').val(data[0].toString());
+    });
+    $( "#roasttempmaxform" ).submit(function( event ) {
+        $.ajax({
+            type:'get',
+                url:'/setroasttempmax/',
+                data: {"tempset":$('#roasttempmaxinput').val()},
+                cache:false,
+                async:true,
+                error: function(request, status, error) {
+                        alert(error);
+                },
+                success: function (data) {
+                    $( "span" ).text( "Updated" ).show().fadeOut( 1500 );
+                }
+        });
+        event.preventDefault();
     });
 });

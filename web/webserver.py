@@ -35,7 +35,7 @@ class RoastStart(tornado.web.RequestHandler):
     def get(self):
         description = self.get_argument("description", None, True)
         tempset = self.get_argument("tempset", None, True)
-        DataAccess().startroasting(tempset, description)
+        DataAccess().startroasting(float(tempset), description)
 
 
 class RoastEnd(tornado.web.RequestHandler):
@@ -43,18 +43,25 @@ class RoastEnd(tornado.web.RequestHandler):
         DataAccess().endroasting()
 
 
-class RoastTempMax(tornado.web.RequestHandler):
+class GetRoastTempMax(tornado.web.RequestHandler):
     def get(self):
         data = DataAccess().getroasttempmax()
         self.write(json.dumps(data))
 
+
+class SetRoastTempMax(tornado.web.RequestHandler):
+    def get(self):
+        tempset = self.get_argument("tempset", None, True)
+        print tempset, type(tempset)
+        DataAccess().setroasttempmax(float(tempset),)
 
 application = tornado.web.Application([
     (r"/last/", TempLast),
     (r"/all/", TempAll),
     (r"/start/", RoastStart),
     (r"/end/", RoastEnd),
-    (r"/roasttempmax/", RoastTempMax),
+    (r"/getroasttempmax/", GetRoastTempMax),
+    (r"/setroasttempmax/", SetRoastTempMax),
     (r"/(.*)", tornado.web.StaticFileHandler, {"path": root, "default_filename": "index.html"})
 ])
 

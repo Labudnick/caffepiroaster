@@ -95,3 +95,7 @@ class DataAccess:
     def checkroasting(self):
         c.execute("SELECT status, tempread, tempset, roastlogid FROM roaststatus LIMIT 1")
         return c.fetchone()
+
+    def setroasttempmax(selfself, roasttempmax):
+        c.execute("UPDATE RoastStatus SET TempSet = ?", (str(roasttempmax),))
+        conn.commit()
