@@ -13,7 +13,7 @@ class SensorMock:
 class GPIOMock:
     def output(self, relay_port, relay_state):
         # print "GPIO.output(?, ?)", (relay_port, relay_state)
-        return 1;
+        return 1
 
 
 # Relay is off with HIGH state
@@ -57,16 +57,16 @@ heat = 0
 cooldown_temp = 30
 
 
-def scantempwrite(roastlogid, starttm, heat, roasting, tempset):
-    sens_temp = sensor.readTempC()
+def scantempwrite(p_roast_log_id, p_start_time, p_heat, p_roasting, p_temp_set):
+    l_sens_temp = sensor.readTempC()
     # Fix temperature reading issues
-    while (sens_temp == 0) or (isnan(sens_temp)):
+    while (l_sens_temp == 0) or (isnan(l_sens_temp)):
         time.sleep(0.1)
-        sens_temp = sensor.readTempC()
+        l_sens_temp = sensor.readTempC()
 
-    processtime = str(datetime.datetime.utcnow() - starttm).split('.', 2)[0][2:]
-    DataAccess().insertroastdetails(roastlogid, processtime, heat,  sens_temp, tempset, roasting)
-    return sens_temp
+    l_process_time = str(datetime.datetime.utcnow() - p_start_time).split('.', 2)[0][2:]
+    DataAccess().insertroastdetails(p_roast_log_id, l_process_time, p_heat,  l_sens_temp, p_temp_set, p_roasting)
+    return l_sens_temp
 
 
 print "--->Roasting process started on python side"

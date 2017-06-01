@@ -113,11 +113,20 @@ function roastBTNclicked()
         document.images["jsbutton"].src= "btn_red.png";
         jsbutton_clicked = 1;
         $('#timer').html('<h1>00:00</h1>');
-        var tempSet = $('#roasttempmaxinput').val();
+        var tempSet = $('#roastTempMaxInput').val();
+        var coffeeName = $('#coffeeNameInput').val();
+        var roastSize = $('#roastSizeInput').val();
+        var beansSize = $('#beansSizeInput').val();
+        var description = $('#descriptionInput').val();
         $.ajax({
             type:'get',
             url:'/start/',
-            data: {"description": "test description", "tempset":tempSet},
+            data: { "description": description,
+                    "tempset":tempSet,
+                    "coffeeName":coffeeName,
+                    "roastSize":roastSize,
+                    "beansSize":beansSize
+                  },
             cache:false,
             async:true,
             error: function(request, status, error) {
@@ -160,13 +169,13 @@ function handleMUp()
 //***************   On page load *****************//
 $('document').ready(function () {
     getRoastTempMax(function(data) {
-        $('#roasttempmaxinput').val(data[0].toString());
+        $('#roastTempMaxInput').val(data[0].toString());
     });
-    $( "#roasttempmaxform" ).submit(function( event ) {
+    $( "#roastTempMaxForm" ).submit(function( event ) {
         $.ajax({
             type:'get',
                 url:'/setroasttempmax/',
-                data: {"tempset":$('#roasttempmaxinput').val()},
+                data: {"tempset":$('#roastTempMaxInput').val()},
                 cache:false,
                 async:true,
                 error: function(request, status, error) {

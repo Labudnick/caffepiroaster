@@ -35,7 +35,10 @@ class RoastStart(tornado.web.RequestHandler):
     def get(self):
         description = self.get_argument("description", None, True)
         tempset = self.get_argument("tempset", None, True)
-        DataAccess().startroasting(float(tempset), description)
+        coffee_name = self.get_argument("coffeeName", None, True)
+        roast_size = self.get_argument("roastSize", None, True)
+        beans_size = self.get_argument("beansSize", None, True)
+        DataAccess().startroasting(float(tempset), description, coffee_name, roast_size, beans_size)
 
 
 class RoastEnd(tornado.web.RequestHandler):
