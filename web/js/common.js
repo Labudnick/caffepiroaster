@@ -110,33 +110,39 @@ var jsbutton_clicked = 0;
 function roastBTNclicked()
 {
     if ( jsbutton_clicked == 0 ) {
-        document.images["jsbutton"].src= "btn_red.png";
-        jsbutton_clicked = 1;
-        $('#timer').html('<h1>00:00</h1>');
         var tempSet = $('#roastTempMaxInput').val();
         var coffeeName = $('#coffeeNameInput').val();
         var roastSize = $('#roastSizeInput').val();
         var beansSize = $('input[name=beansSize]:checked').val();
         var description = $('#descriptionInput').val();
-        $.ajax({
-            type:'get',
-            url:'/start/',
-            data: { "description": description,
-                    "tempset":tempSet,
-                    "coffeeName":coffeeName,
-                    "roastSize":roastSize,
-                    "beansSize":beansSize
-                  },
-            cache:false,
-            async:true,
-            error: function(request, status, error) {
-                alert(error);
-            },
-            success: function (data) {
-                $("fieldset").attr('disabled', 'disabled');
-            }
-        });
-        google.charts.setOnLoadCallback(drawChartLines);
+        if (coffeeName!='') {
+            document.images["jsbutton"].src= "btn_red.png";
+            jsbutton_clicked = 1;
+            $('#timer').html('<h1>00:00</h1>');
+
+            $.ajax({
+                type:'get',
+                url:'/start/',
+                data: { "description": description,
+                        "tempset":tempSet,
+                        "coffeeName":coffeeName,
+                        "roastSize":roastSize,
+                        "beansSize":beansSize
+                      },
+                cache:false,
+                async:true,
+                error: function(request, status, error) {
+                    alert(error);
+                },
+                success: function (data) {
+                    $("fieldset").attr('disabled', 'disabled');
+                }
+            });
+            google.charts.setOnLoadCallback(drawChartLines);
+        } else {
+            document.images["jsbutton"].src = "btn_green.png";
+            $( "span" ).text( "Provide roast details. At least coffee name!" ).show().fadeOut( 3000 );
+        }
     }
     else {
         document.images["jsbutton"].src= "btn_green.png";
