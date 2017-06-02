@@ -8,61 +8,77 @@
     <meta http-equiv="pragma" content="no-cache"/>
 
     <link rel="stylesheet" type="text/css" href="css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="css/jquery-ui.css">
     <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript" src="js/jquery-ui.js"></script>
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-
-
+    <script>
+        $( function() {
+            $( "#accordion" ).accordion();
+        } );
+    </script>
 </head>
 <body>
-<table class="center">
-    <tr>
-        <td>
-            <div class="center" id="chart_div" style="width: 300px; height: 300px;"></div>
-        </td>
-        <td>
-            <div id="timer"><h1>00:00</h1></div>
-            <div><h3>Target temperature</h3>
-                <form id="roastTempMaxForm" action="javascript:alert( 'success!' );">
+<div id="accordion">
+    <h3>Current roast</h3>
+    <div>
+        <table class="center">
+            <tr>
+                <td>
+                    <div class="center" id="chart_div" style="width: 300px; height: 300px;"></div>
+                </td>
+                <td>
+                    <div id="timer"><h1>00:00</h1></div>
                     <div>
-                        <input type="number" id="roastTempMaxInput" max="300" min="20">
-                        <input type="submit">
+                        <form id="roastTempMaxForm" action="javascript:alert( 'success!' );">
+                            <div>
+                                <label>Temperature set</label><br>
+                                <input type="number" id="roastTempMaxInput" max="300" min="20">
+                                <input type="submit">
+                            </div>
+                        </form>
+                        <span></span>
                     </div>
-                </form>
-                <span></span>
-            </div>
-        </td>
-        <td><a class="left" href="#" onMouseDown="return handleMDown()" onMouseUp="return handleMUp()">
-            <img name="jsbutton" src="btn_green.png" width="266" height="266" border="0" alt="javascript button">
-        </a>
-        </td>
-        <td>
-            <form id="roastDetailsForm">
-                <div>
-                    <fieldset>
-                        <h3>Roast details</h3>
-                        <textarea form="roastDetailsForm" id="coffeeNameInput" rows="1" cols="30"
-                                  placeholder="Coffee name"></textarea>
-                        <br>
-                        <label>Roast size [g]: </label>
-                        <input type="number" id="roastSizeInput" name="roastSize" value="100" min="80" max="120"><br>
-                        <label>Beans size: </label>
-                        <input type="radio" id="beansSizeInputSmall" name="beansSize" value="small" checked>Small
-                        <input type="radio" id="beansSizeInputLarge" name="beansSize" value="large">Large
-                        <br>
-                        <textarea form="roastDetailsForm" id="descriptionInput" name="description" rows="5" cols="30"
-                                  placeholder="Roast description"></textarea>
-                    </fieldset>
-                </div>
-            </form>
-        </td>
-    </tr>
-</table>
-<div class="center" id="curve_chart" style="width: 900px; height: 300px"></div>
-<div>
-    <button type="button" onMouseUp="return powerOffBtnUp()">Power off the system</button>
+                </td>
+                <td><a class="left" href="#" onMouseDown="return handleMDown()" onMouseUp="return handleMUp()">
+                    <img name="jsbutton" src="btn_green.png" width="266" height="266" border="0" alt="javascript button">
+                </a>
+                </td>
+                <td>
+                    <form id="roastDetailsForm">
+                        <div>
+                            <fieldset>
+                                <h3>Roast details</h3>
+                                <textarea form="roastDetailsForm" id="coffeeNameInput" rows="1" cols="30"
+                                          placeholder="Coffee name"></textarea>
+                                <br>
+                                <label>Roast size [g]: </label>
+                                <input type="number" id="roastSizeInput" name="roastSize" value="100" min="80" max="120"><br>
+                                <label>Beans size: </label>
+                                <input type="radio" id="beansSizeInputSmall" name="beansSize" value="small" checked>Small
+                                <input type="radio" id="beansSizeInputLarge" name="beansSize" value="large">Large
+                                <br>
+                                <textarea form="roastDetailsForm" id="descriptionInput" name="description" rows="5" cols="30"
+                                          placeholder="Roast description"></textarea>
+                            </fieldset>
+                        </div>
+                    </form>
+                </td>
+            </tr>
+        </table>
+        <div class="center" id="curve_chart" style="width: 900px; height: 300px"></div>
+    </div>
+    <h3>System settings</h3>
+    <div>
+        <button type="button" onMouseUp="return powerOffBtnUp()">Power off the system</button>
+    </div>
+    <h3>Testowa sekcja</h3>
+    <div>Cośtam cośtam</div>
 </div>
+
 <script type="text/javascript" src="js/common.js"></script>
 </body>
 </html>
