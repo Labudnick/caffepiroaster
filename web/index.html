@@ -1,6 +1,6 @@
 <html>
 <head>
-    <title>Caffee Pi-Roaster</title>
+    <title>Coffee Pi-Roaster</title>
     <meta http-equiv="cache-control" content="max-age=0"/>
     <meta http-equiv="cache-control" content="no-cache"/>
     <meta http-equiv="expires" content="0"/>
@@ -25,10 +25,10 @@
 <div id="accordion">
     <h3>Current roast</h3>
     <div>
-        <table class="center">
+        <table>
             <tr>
                 <td>
-                    <div class="center" id="chart_div" style="width: 300px; height: 300px;"></div>
+                    <div id="chart_div" style="width: 300px; height: 300px;"></div>
                 </td>
                 <td>
                     <div id="timer"><h1>00:00</h1></div>
@@ -36,46 +36,49 @@
                         <form id="roastTempMaxForm" action="javascript:alert( 'success!' );">
                             <div>
                                 <label>Temperature set</label><br>
-                                <input type="number" id="roastTempMaxInput" max="300" min="20">
-                                <input type="submit">
+                                <input class="text ui-widget-content" type="number" id="roastTempMaxInput" max="300" min="20">
+                                <input class="button ui-widget-content" type="submit">
                             </div>
                         </form>
                         <span></span>
                     </div>
                 </td>
-                <td><a class="left" href="#" onMouseDown="return handleMDown()" onMouseUp="return handleMUp()">
+                <td><a href="#" onMouseDown="return handleMDown()" onMouseUp="return handleMUp()">
                     <img name="jsbutton" src="btn_green.png" width="266" height="266" border="0" alt="javascript button">
                 </a>
                 </td>
                 <td>
                     <form id="roastDetailsForm">
-                        <div>
+                        <div class="widget">
                             <fieldset>
                                 <h3>Roast details</h3>
                                 <textarea form="roastDetailsForm" id="coffeeNameInput" rows="1" cols="30"
-                                          placeholder="Coffee name"></textarea>
+                                          placeholder="Coffee name" class="textarea ui-widget-content"></textarea>
                                 <br>
                                 <label>Roast size [g]: </label>
-                                <input type="number" id="roastSizeInput" name="roastSize" value="100" min="80" max="120"><br>
-                                <label>Beans size: </label>
-                                <input type="radio" id="beansSizeInputSmall" name="beansSize" value="small" checked>Small
-                                <input type="radio" id="beansSizeInputLarge" name="beansSize" value="large">Large
-                                <br>
+                                <input type="number" id="roastSizeInput" name="roastSize" value="100" min="80" max="120" class="text ui-widget-content"><br>
+                                <fieldset>
+                                    <legend>Beans size</legend>
+                                    <label for="beansSize">Small</label>
+                                    <input type="radio" id="beansSizeInputSmall" name="beansSize" checked>
+                                    <label for="beansSize">Large</label>
+                                    <input type="radio" id="beansSizeInputLarge" name="beansSize" >
+                                </fieldset>
                                 <textarea form="roastDetailsForm" id="descriptionInput" name="description" rows="5" cols="30"
-                                          placeholder="Roast description"></textarea>
+                                          placeholder="Roast description" class="textarea ui-widget-content"></textarea>
                             </fieldset>
                         </div>
                     </form>
                 </td>
             </tr>
         </table>
-        <div class="center" id="curve_chart" style="width: 900px; height: 300px"></div>
+        <div id="curve_chart" class="chart"></div>
     </div>
     <h3>Past roasts</h3>
     <div>Cośtam cośtam</div>
     <h3>System settings</h3>
     <div>
-        <button type="button" onMouseUp="return powerOffBtnUp()">Power off the system</button>
+        <button class="ui-button" onMouseUp="return powerOffBtnUp()">Power off the system</button>
     </div>
 </div>
 
