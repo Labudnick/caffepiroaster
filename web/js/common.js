@@ -177,7 +177,15 @@ function handleMUp()
     return true;
 }
 
-
+function powerOffBtnUp() {
+    $.ajax({
+        type:'get',
+        url:'/poweroff/',
+        error: function(request, status, error) {
+                alert(error);
+            }
+    });
+}
 
 //***************   On page load *****************//
 $('document').ready(function () {

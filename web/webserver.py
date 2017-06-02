@@ -55,8 +55,12 @@ class GetRoastTempMax(tornado.web.RequestHandler):
 class SetRoastTempMax(tornado.web.RequestHandler):
     def get(self):
         tempset = self.get_argument("tempset", None, True)
-        print tempset, type(tempset)
-        DataAccess().setroasttempmax(float(tempset),)
+
+
+
+class PowerOff(tornado.web.RequestHandler):
+    def get(self):
+        os.system("sudo poweroff &")
 
 application = tornado.web.Application([
     (r"/last/", TempLast),
@@ -65,6 +69,7 @@ application = tornado.web.Application([
     (r"/end/", RoastEnd),
     (r"/getroasttempmax/", GetRoastTempMax),
     (r"/setroasttempmax/", SetRoastTempMax),
+    (r"/poweroff/", PowerOff),
     (r"/(.*)", tornado.web.StaticFileHandler, {"path": root, "default_filename": "index.html"})
 ])
 
