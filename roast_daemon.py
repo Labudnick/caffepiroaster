@@ -90,10 +90,10 @@ while True:
         while roastStatus[0] > 0:
 
             sens_temp = scantempwrite(roastStatus[3], starttime, heat, roasting, roastStatus[2])
-            if sens_temp > roastStatus[1] + roasting_delta:
+            if sens_temp > roastStatus[2] + roasting_delta:
                 heat = 0
                 GPIO.output(relay_heater, relay_off)
-            elif sens_temp < roastStatus[1] - roasting_delta:
+            elif sens_temp < roastStatus[2] - roasting_delta:
                 heat = 1
                 GPIO.output(relay_heater, relay_on)
             time.sleep(1)
