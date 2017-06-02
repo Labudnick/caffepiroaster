@@ -116,7 +116,7 @@ function roastBTNclicked()
         var tempSet = $('#roastTempMaxInput').val();
         var coffeeName = $('#coffeeNameInput').val();
         var roastSize = $('#roastSizeInput').val();
-        var beansSize = $('#beansSizeInput').val();
+        var beansSize = $('input[name=beansSize]:checked').val();
         var description = $('#descriptionInput').val();
         $.ajax({
             type:'get',
@@ -131,6 +131,9 @@ function roastBTNclicked()
             async:true,
             error: function(request, status, error) {
                 alert(error);
+            },
+            success: function (data) {
+                $("fieldset").attr('disabled', 'disabled');
             }
         });
         google.charts.setOnLoadCallback(drawChartLines);
@@ -140,11 +143,15 @@ function roastBTNclicked()
         jsbutton_clicked = 0;
         $.ajax({
             type:'get',
-                url:'/end/',
-                cache:false,
-                async:true,
-                error: function(request, status, error) {
-                        alert(error);
+            url:'/end/',
+            cache:false,
+            async:true,
+            error: function(request, status, error) {
+                    alert(error);
+                },
+            success: function (data) {
+                $("#roastDetailsForm").trigger('reset');
+                $("fieldset").removeAttr('disabled');
             }
         });
         clearInterval(chartLinesInterval);
