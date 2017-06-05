@@ -31,7 +31,10 @@
                     <div id="chart_div" style="width: 300px; height: 300px;"></div>
                 </td>
                 <td>
-                    <div id="timer"><h1>00:00</h1></div>
+                    <div id="timer_label"><h2>Roast time</h2></div>
+                    <div id="timer" class="timer"><h2>00:00</h2></div>
+                    <div id="1st_crack_label"></div>
+                    <div id="1st_crack_timer" class="timer"></div>
                     <div>
                         <form id="roastTempMaxForm" action="javascript:alert( 'success!' );">
                             <div>
@@ -43,15 +46,16 @@
                         <span></span>
                     </div>
                 </td>
-                <td><a href="#" onMouseDown="return handleMDown()" onMouseUp="return handleMUp()">
-                    <img name="jsbutton" src="btn_green.png" width="266" height="266" border="0" alt="javascript button">
+                <td><a href="#" onMouseUp="return handleMUp()">
+                    <img name="jsbutton" width="266" height="266" border="0" alt="javascript button">
+                    <!--src="btn_green.png" -->
                 </a>
                 </td>
                 <td>
                     <form id="roastDetailsForm">
                         <div class="widget">
                             <fieldset>
-                                <h3>Roast details</h3>
+                                <h2>Roast details</h2>
                                 <textarea form="roastDetailsForm" id="coffeeNameInput" rows="1" cols="30"
                                           placeholder="Coffee name" class="textarea ui-widget-content"></textarea>
                                 <br>

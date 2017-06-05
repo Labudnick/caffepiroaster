@@ -6,32 +6,35 @@ conn = sqlite3.connect(ROOT + '/coffeepiroaster.db')
 c = conn.cursor()
 
 sql = "CREATE TABLE  IF NOT EXISTS roast_status ( "
-sql += "id           INTEGER PRIMARY KEY AUTOINCREMENT, "
-sql += "roast_log_id INTEGER, "
-sql += "time         STRING DEFAULT '00:00', "
-sql += "temp_read    REAL, "
-sql += "temp_set     REAL, "
-sql += "status       INTEGER DEFAULT 0, "
-sql += "heating      INTEGER DEFAULT 0)"
+sql += "id                  INTEGER PRIMARY KEY AUTOINCREMENT, "
+sql += "roast_log_id        INTEGER, "
+sql += "roast_time          TEXT DEFAULT '00:00', "
+sql += "temp_read           REAL, "
+sql += "temp_set            REAL, "
+sql += "status              INTEGER DEFAULT 0, "
+sql += "heating             INTEGER DEFAULT 0,"
+sql += "first_crack_time    TEXT DEFAULT '00:00',"
+sql += "first_crack_dt      DATETIME)"
 c.execute(sql)
 if c.execute("SELECT count(*) from roast_status").fetchone()[0] == 0:
     c.execute("INSERT INTO roast_status (status) VALUES (0)")
 else:
-    c.execute("UPDATE roast_status SET status=0 and time='00:00'")
+    c.execute("UPDATE roast_status SET status=0 and roast_time='00:00'")
 conn.commit()
 
 sql = "CREATE TABLE IF NOT EXISTS roast_log ( "
 sql += "id INTEGER PRIMARY KEY AUTOINCREMENT, "
 sql += "date_time DATETIME DEFAULT (datetime('now','localtime')), "
-sql += "coffee_name STRING, "
-sql += "roast_size STRING, "
+sql += "coffee_name TEXT, "
+sql += "roast_size TEXT, "
 sql += "beans_size INTEGER, "
-sql += "description STRING)"
+sql += "description TEXT,"
+sql += "first_crack_time DATETIME)"
 c.execute(sql)
 
 sql = "CREATE TABLE IF NOT EXISTS roast_details ("
 sql += "id INTEGER PRIMARY KEY AUTOINCREMENT, "
-sql += "time STRING, "
+sql += "time TEXT, "
 sql += "heating NUMBER, "
 sql += "temp_read REAL, "
 sql += "temp_set REAL, "
@@ -41,7 +44,7 @@ c.execute(sql)
 
 c.execute("CREATE INDEX IF NOT EXISTS idx_roast_details_fk ON roast_details(roast_log_id)")
 
-c.execute('CREATE TABLE IF NOT EXISTS parameters (id INTEGER PRIMARY KEY AUTOINCREMENT, name STRING, value STRING)')
+c.execute('CREATE TABLE IF NOT EXISTS parameters (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, value TEXT)')
 if c.execute('SELECT count(*) from parameters').fetchone()[0] == 0:
     c.execute("INSERT INTO parameters (name, value) values ('roast_temp_max', '225')")
     conn.commit()
@@ -49,7 +52,7 @@ if c.execute('SELECT count(*) from parameters').fetchone()[0] == 0:
 
 class DataAccess:
     def getcurrentstate(self):
-        sqlq = "SELECT round(temp_read, 2), time, status, heating, roast_log_id FROM roast_status LIMIT 1"
+        sqlq = "SELECT round(temp_read, 2), roast_time, status, heating, roast_log_id, first_crack_time FROM roast_status LIMIT 1"
         c.execute(sqlq)
         return c.fetchone()
 
@@ -65,16 +68,17 @@ class DataAccess:
         c.execute(sqlq)
         return c.fetchall()
 
-    def insertroastdetails(self, roast_log_id, time, heating, temp_read, temp_set, roasting):
+    def insertroastdetails(self, roast_log_id, time, heating, temp_read, temp_set, roasting, first_crack_time):
         if roasting == 1:
             sqlq = "INSERT INTO roast_details (roast_log_id, time, heating, temp_read, temp_set)  VALUES (?, ?, ?, ?, ?)"
             c.execute(sqlq, (str(roast_log_id), time, str(heating), str(temp_read), str(temp_set)))
 
         sqlq = "UPDATE roast_status SET "
-        sqlq += "time = ?, "
+        sqlq += "roast_time = ?, "
         sqlq += "temp_read = ?, "
-        sqlq += "heating = ?"
-        c.execute(sqlq, (time, str(temp_read), str(heating)))
+        sqlq += "heating = ?,"
+        sqlq += "first_crack_time = ?"
+        c.execute(sqlq, (time, str(temp_read), str(heating), first_crack_time))
         conn.commit()
 
     def getroasttempmax(self):
@@ -92,12 +96,20 @@ class DataAccess:
         conn.commit()
 
     def endroasting(self):
-        c.execute("UPDATE roast_status SET time = '00:00', status = 0, roast_log_id = ''")
+        c.execute("UPDATE roast_status SET time = '00:00', status = 0, roast_log_id = '', first_crack_time='00:00'")
         conn.commit()
 
     def checkroasting(self):
-        c.execute("SELECT status, temp_read, temp_set, roast_log_id FROM roast_status LIMIT 1")
+        c.execute("SELECT status, temp_read, temp_set, roast_log_id, first_crack_dt FROM roast_status LIMIT 1")
         return c.fetchone()
+
+    def setfirstcrack(self):
+        c.execute("UPDATE roast_status SET status = 2, first_crack_dt=datetime('now', 'localtime')")
+        sqlq = "UPDATE roast_log "
+        sqlq += "SET first_crack_time=datetime('now', 'localtime')"
+        sqlq += "WHERE id IN (SELECT roast_log_id FROM roast_status LIMIT 1)"
+        c.execute(sqlq)
+        conn.commit()
 
     def setroasttempmax(self, roast_temp_max):
         c.execute("UPDATE roast_status SET temp_set = ?", (str(roast_temp_max),))

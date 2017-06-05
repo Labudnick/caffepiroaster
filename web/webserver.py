@@ -46,6 +46,11 @@ class RoastEnd(tornado.web.RequestHandler):
         DataAccess().endroasting()
 
 
+class FirstCrack(tornado.web.RequestHandler):
+    def get(self):
+        DataAccess().setfirstcrack()
+
+
 class GetRoastTempMax(tornado.web.RequestHandler):
     def get(self):
         data = DataAccess().getroasttempmax()
@@ -57,7 +62,6 @@ class SetRoastTempMax(tornado.web.RequestHandler):
         tempset = self.get_argument("tempset", None, True)
 
 
-
 class PowerOff(tornado.web.RequestHandler):
     def get(self):
         os.system("sudo poweroff &")
@@ -67,6 +71,7 @@ application = tornado.web.Application([
     (r"/all/", TempAll),
     (r"/start/", RoastStart),
     (r"/end/", RoastEnd),
+    (r"/firstcrack/", FirstCrack),
     (r"/getroasttempmax/", GetRoastTempMax),
     (r"/setroasttempmax/", SetRoastTempMax),
     (r"/poweroff/", PowerOff),

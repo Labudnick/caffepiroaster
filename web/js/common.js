@@ -48,10 +48,14 @@ function drawChartGauge() {
         var currTime;
         getCurrTemp(function(data) {
             dataGauge.setValue(0, 1, data[0].toString());
-            //console.log(data[1].toString());
-            if (jsbutton_clicked==1) {
-                $('#timer').html('<h1>' + data[1].toString() + '</h1>');
+            if (jsbutton_clicked>0) {
+                $('#timer').html('<h2>' + data[1].toString() + '</h2>');
+                if (jsbutton_clicked==2) {
+                    $('#1st_crack_label').html('<h2>Since 1st crack</h2>');
+                    $('#1st_crack_timer').html('<h2>' + data[5].toString() + '</h2>');
+                };
             };
+
         });
         chartGauge.draw(dataGauge, optionsGauge);
     }, 1*1000);
@@ -109,17 +113,14 @@ var jsbutton_clicked = 0;
 
 function roastBTNclicked()
 {
-    if ( jsbutton_clicked == 0 ) {
+    //Start roast clicked
+    if ( jsbutton_clicked === 0 ) {
         var tempSet = $('#roastTempMaxInput').val();
         var coffeeName = $('#coffeeNameInput').val();
         var roastSize = $('#roastSizeInput').val();
         var beansSize = $('input[name=beansSize]:checked').val();
         var description = $('#descriptionInput').val();
         if (coffeeName!='') {
-            document.images["jsbutton"].src= "btn_red.png";
-            jsbutton_clicked = 1;
-            $('#timer').html('<h1>00:00</h1>');
-
             $.ajax({
                 type:'get',
                 url:'/start/',
@@ -136,17 +137,36 @@ function roastBTNclicked()
                 },
                 success: function (data) {
                     $("fieldset").attr('disabled', 'disabled');
+                    jsbutton_clicked++;
+                    document.images["jsbutton"].src = images[jsbutton_clicked].src;
+                    $('#timer').html('<h1>00:00</h1>');
                 }
             });
             google.charts.setOnLoadCallback(drawChartLines);
         } else {
-            document.images["jsbutton"].src = "btn_green.png";
-            $( "span" ).text( "Provide roast details. At least coffee name!" ).show().fadeOut( 3000 );
+            $( "span" ).text( "Provide roast details!" ).show().fadeOut( 3000 );
         }
+        console.log(jsbutton_clicked);
     }
+    // 1st crack encountered
+    else if ( jsbutton_clicked === 1 )    {
+        $.ajax({
+            type:'get',
+            url:'/firstcrack/',
+            cache:false,
+            async:true,
+            error: function(request, status, error) {
+                    alert(error);
+                },
+            success: function (data) {
+                jsbutton_clicked++;
+                document.images["jsbutton"].src = images[jsbutton_clicked].src;
+                clearInterval(chartLinesInterval);
+            }
+        });
+    }
+    // Stop roast clicked
     else {
-        document.images["jsbutton"].src= "btn_green.png";
-        jsbutton_clicked = 0;
         $.ajax({
             type:'get',
             url:'/end/',
@@ -156,18 +176,16 @@ function roastBTNclicked()
                     alert(error);
                 },
             success: function (data) {
+                jsbutton_clicked = 0;
+                document.images["jsbutton"].src = images[jsbutton_clicked].src;
                 $("#roastDetailsForm").trigger('reset');
                 $("fieldset").removeAttr('disabled');
+                $('#timer').html('<h1>00:00</h1>');
+                clearInterval(chartLinesInterval);
             }
         });
-        clearInterval(chartLinesInterval);
+        console.log(jsbutton_clicked);
     }
-    return true;
-}
-
-function handleMDown()
-{
-    document.images["jsbutton"].src = "btn_red.png";
     return true;
 }
 
@@ -186,6 +204,16 @@ function powerOffBtnUp() {
             }
     });
 }
+
+var images = new Array()
+function preload() {
+    for (i = 0; i < preload.arguments.length; i++) {
+        images[i] = new Image()
+        images[i].src = preload.arguments[i]
+    }
+}
+
+
 
 //***************   On page load *****************//
 $('document').ready(function () {
@@ -208,4 +236,10 @@ $('document').ready(function () {
         });
         event.preventDefault();
     });
+    preload(
+        "btn_green.png",
+        "btn_blue.png",
+        "btn_red.png"
+    );
+    document.images["jsbutton"].src = images[0].src;
 });

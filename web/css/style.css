@@ -30,3 +30,7 @@ fieldset {
     width: 900px;
     height: 300px
 }
+
+.timer {
+    text-align: center;
+}
