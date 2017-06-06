@@ -57,7 +57,7 @@ heat = 0
 cooldown_temp = 30
 
 
-def scantempwrite(p_roast_log_id, p_start_time, p_heat, p_temp_set, p_roast_status, p_first_crack_dt):
+def scantempwrite(p_start_time, p_heat, p_roast_status):
     l_sens_temp = sensor.readTempC()
     # Fix temperature reading issues
     while (l_sens_temp == 0) or (isnan(l_sens_temp)):
@@ -66,10 +66,9 @@ def scantempwrite(p_roast_log_id, p_start_time, p_heat, p_temp_set, p_roast_stat
 
     l_process_time = str(datetime.datetime.now() - p_start_time).split('.', 2)[0][2:]
     l_first_crack_time = '00:00'
-    print p_roast_status
-    if p_roast_status > 1:
-        l_first_crack_time = str(datetime.datetime.now() - datetime.datetime.strptime(p_first_crack_dt, '%Y-%m-%d %H:%M:%S')).split('.', 2)[0][2:]
-    DataAccess().insertroastdetails(p_roast_log_id, l_process_time, p_heat,  l_sens_temp, p_temp_set, p_roast_status, l_first_crack_time)
+    if p_roast_status[0] > 1:
+        l_first_crack_time = str(datetime.datetime.now() - datetime.datetime.strptime(p_roast_status[4], '%Y-%m-%d %H:%M:%S')).split('.', 2)[0][2:]
+    DataAccess().insertroastdetails(p_roast_status[3], l_process_time, p_heat,  l_sens_temp, p_roast_status[2], p_roast_status[0], l_first_crack_time)
     return l_sens_temp
 
 
@@ -78,7 +77,7 @@ print "--->Roasting process started on python side"
 # Main loop
 while True:
     roastStatus = DataAccess().checkroasting()
-    sens_temp = scantempwrite(roastStatus[3], datetime.datetime.now(), heat, roastStatus[2], roastStatus[0], roastStatus[4])
+    sens_temp = scantempwrite(datetime.datetime.now(), heat, roastStatus)
 
     if roastStatus[0] > 0:
         # Roast start process flag appeared
@@ -99,7 +98,7 @@ while True:
                 GPIO.output(relay_heater, relay_on)
             time.sleep(1)
             roastStatus = DataAccess().checkroasting()
-            sens_temp = scantempwrite(roastStatus[3], starttime, heat, roastStatus[2], roastStatus[0], roastStatus[4])
+            sens_temp = scantempwrite(starttime, heat, roastStatus)
         print '--->Cooling down started'
         # Cooling down the roaster to set temperature
         heat = 0
@@ -108,7 +107,7 @@ while True:
         while sens_temp > cooldown_temp:
             time.sleep(1)
             roastStatus = DataAccess().checkroasting()
-            sens_temp = scantempwrite(roastStatus[3], starttime, heat, roastStatus[2], roastStatus[0], roastStatus[4])
+            sens_temp = scantempwrite(starttime, heat, roastStatus)
 
         print "--->Cooling down finished"
         GPIO.output(relay_fan, relay_off)
