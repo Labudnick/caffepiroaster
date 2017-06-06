@@ -69,7 +69,7 @@ class DataAccess:
         return c.fetchall()
 
     def insertroastdetails(self, roast_log_id, roast_time, heating, temp_read, temp_set, roasting, first_crack_time):
-        if roasting == 1:
+        if roasting >0:
             sqlq = "INSERT INTO roast_details (roast_log_id, roast_time, heating, temp_read, temp_set)  VALUES (?, ?, ?, ?, ?)"
             c.execute(sqlq, (str(roast_log_id), roast_time, str(heating), str(temp_read), str(temp_set)))
 
