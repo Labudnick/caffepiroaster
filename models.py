@@ -34,7 +34,7 @@ c.execute(sql)
 
 sql = "CREATE TABLE IF NOT EXISTS roast_details ("
 sql += "id INTEGER PRIMARY KEY AUTOINCREMENT, "
-sql += "time TEXT, "
+sql += "roast_time TEXT, "
 sql += "heating NUMBER, "
 sql += "temp_read REAL, "
 sql += "temp_set REAL, "
@@ -58,7 +58,7 @@ class DataAccess:
 
     def getcurrentroastdata(self):
         sqlq = "SELECT "
-        sqlq += "    time, "
+        sqlq += "    roast_time, "
         sqlq += "    heating, "
         sqlq += "    round(temp_read, 2) as temp_read, "
         sqlq += "    temp_set "
@@ -68,17 +68,17 @@ class DataAccess:
         c.execute(sqlq)
         return c.fetchall()
 
-    def insertroastdetails(self, roast_log_id, time, heating, temp_read, temp_set, roasting, first_crack_time):
+    def insertroastdetails(self, roast_log_id, roast_time, heating, temp_read, temp_set, roasting, first_crack_time):
         if roasting == 1:
-            sqlq = "INSERT INTO roast_details (roast_log_id, time, heating, temp_read, temp_set)  VALUES (?, ?, ?, ?, ?)"
-            c.execute(sqlq, (str(roast_log_id), time, str(heating), str(temp_read), str(temp_set)))
+            sqlq = "INSERT INTO roast_details (roast_log_id, roast_time, heating, temp_read, temp_set)  VALUES (?, ?, ?, ?, ?)"
+            c.execute(sqlq, (str(roast_log_id), roast_time, str(heating), str(temp_read), str(temp_set)))
 
         sqlq = "UPDATE roast_status SET "
         sqlq += "roast_time = ?, "
         sqlq += "temp_read = ?, "
         sqlq += "heating = ?,"
         sqlq += "first_crack_time = ?"
-        c.execute(sqlq, (time, str(temp_read), str(heating), first_crack_time))
+        c.execute(sqlq, (roast_time, str(temp_read), str(heating), first_crack_time))
         conn.commit()
 
     def getroasttempmax(self):
@@ -96,7 +96,7 @@ class DataAccess:
         conn.commit()
 
     def endroasting(self):
-        c.execute("UPDATE roast_status SET time = '00:00', status = 0, roast_log_id = '', first_crack_time='00:00'")
+        c.execute("UPDATE roast_status SET roast_time = '00:00', status = 0, roast_log_id = '', first_crack_time='00:00', first_crack_dt=''")
         conn.commit()
 
     def checkroasting(self):

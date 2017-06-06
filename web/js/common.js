@@ -1,6 +1,7 @@
 // ************* Current temperature chart *************
 google.charts.load('current', {'packages':['gauge', 'line']});
 google.charts.setOnLoadCallback(drawChartGauge);
+google.charts.setOnLoadCallback(drawChartLines);
 
 var chartLinesInterval;
 var roastLogId;
@@ -51,7 +52,7 @@ function drawChartGauge() {
             if (jsbutton_clicked>0) {
                 $('#timer').html('<h2>' + data[1].toString() + '</h2>');
                 if (jsbutton_clicked==2) {
-                    $('#1st_crack_label').html('<h2>Since 1st crack</h2>');
+                    $('#1st_crack_label').html('<h2>1st crack</h2>');
                     $('#1st_crack_timer').html('<h2>' + data[5].toString() + '</h2>');
                 };
             };
@@ -101,7 +102,9 @@ function drawChartLines() {
             tempData.addColumn('number', 'Temperature');
             tempData.addColumn('number', 'Temperature Set');
             tempData.addRows( data );
-            chartLine.draw(tempData, materialOptions);
+            if ( data.length > 0 ) {
+                chartLine.draw(tempData, materialOptions);
+            }
         });
     }, 1*5000);
 }
@@ -139,10 +142,10 @@ function roastBTNclicked()
                     $("fieldset").attr('disabled', 'disabled');
                     jsbutton_clicked++;
                     document.images["jsbutton"].src = images[jsbutton_clicked].src;
-                    $('#timer').html('<h1>00:00</h1>');
+                    $('#timer').html('<h2>00:00</h2>');
                 }
             });
-            google.charts.setOnLoadCallback(drawChartLines);
+
         } else {
             $( "span" ).text( "Provide roast details!" ).show().fadeOut( 3000 );
         }
@@ -161,7 +164,6 @@ function roastBTNclicked()
             success: function (data) {
                 jsbutton_clicked++;
                 document.images["jsbutton"].src = images[jsbutton_clicked].src;
-                clearInterval(chartLinesInterval);
             }
         });
     }
@@ -180,8 +182,10 @@ function roastBTNclicked()
                 document.images["jsbutton"].src = images[jsbutton_clicked].src;
                 $("#roastDetailsForm").trigger('reset');
                 $("fieldset").removeAttr('disabled');
-                $('#timer').html('<h1>00:00</h1>');
+                $('#timer').html('<h2>00:00</h2>');
                 clearInterval(chartLinesInterval);
+                $('#1st_crack_label').html('');
+                $('#1st_crack_timer').html('');
             }
         });
         console.log(jsbutton_clicked);
