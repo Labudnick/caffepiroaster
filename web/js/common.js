@@ -221,6 +221,12 @@ function preload() {
 
 //***************   On page load *****************//
 $('document').ready(function () {
+    preload(
+        "btn_green.png",
+        "btn_blue.png",
+        "btn_red.png"
+    );
+    document.images["jsbutton"].src = images[0].src;
     getRoastTempMax(function(data) {
         $('#roastTempMaxInput').val(data[0].toString());
     });
@@ -240,10 +246,41 @@ $('document').ready(function () {
         });
         event.preventDefault();
     });
-    preload(
-        "btn_green.png",
-        "btn_blue.png",
-        "btn_red.png"
-    );
-    document.images["jsbutton"].src = images[0].src;
+    $('#RoastTableContainer').jtable({
+        title: 'Roasts list',
+        actions: {
+            listAction: '/roastslist/',
+            //createAction: '#',
+            updateAction: '#',
+            deleteAction: '#'
+        },
+        sorting: true,
+        multiSorting: true,
+        defaultSorting : 'coffee_name ASC',
+        paging : true,
+        fields: {
+            id: {
+                key: true,
+                list: false
+            },
+            coffee_name: {
+                title: 'Coffee Name',
+                width: '40%'
+            },
+            date_time: {
+                title: 'Date',
+                width: '20%',
+                type:  'date'
+            },
+            roast_size: {
+                title: 'Roast Size [g]',
+                width: '20%'
+            },
+            beans_size: {
+                title: 'Beans Size',
+                width: '20%'
+            }
+        }
+    });
+    $('#RoastTableContainer').jtable('load');
 });

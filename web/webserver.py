@@ -60,7 +60,19 @@ class GetRoastTempMax(tornado.web.RequestHandler):
 class SetRoastTempMax(tornado.web.RequestHandler):
     def get(self):
         tempset = self.get_argument("tempset", None, True)
+        DataAccess().setroasttempmax(tempset)
 
+
+class GetRoastsList(tornado.web.RequestHandler):
+    def post(self):
+        jtSorting = self.get_argument("jtSorting", None, True)
+        jtStartIndex = self.get_argument("jtStartIndex", None, True)
+        jtPageSize = self.get_argument("jtPageSize", None, True)
+
+        print jtSorting, jtStartIndex, jtPageSize
+        roasts_list = DataAccess().getroastslist(jtSorting, jtStartIndex, jtPageSize)
+
+        self.write(roasts_list)
 
 class PowerOff(tornado.web.RequestHandler):
     def get(self):
@@ -74,6 +86,7 @@ application = tornado.web.Application([
     (r"/firstcrack/", FirstCrack),
     (r"/getroasttempmax/", GetRoastTempMax),
     (r"/setroasttempmax/", SetRoastTempMax),
+    (r"/roastslist/", GetRoastsList),
     (r"/poweroff/", PowerOff),
     (r"/(.*)", tornado.web.StaticFileHandler, {"path": root, "default_filename": "index.html"})
 ])

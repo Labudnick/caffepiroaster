@@ -1,4 +1,5 @@
 import sqlite3
+import json
 import os
 
 ROOT = os.path.dirname(__file__)
@@ -114,3 +115,16 @@ class DataAccess:
     def setroasttempmax(self, roast_temp_max):
         c.execute("UPDATE roast_status SET temp_set = ?", (str(roast_temp_max),))
         conn.commit()
+
+    def getroastslist(self, sort_order, start_index, page_size):
+        conn.row_factory = sqlite3.Row
+        d = conn.cursor()
+        sqlq = "SELECT id, coffee_name, date_time, roast_size, beans_size FROM roast_log"
+        if sort_order:
+            sqlq += " ORDER BY " + sort_order
+        sqlq += " LIMIT " + page_size + " OFFSET " + start_index
+        d.execute(sqlq)
+        rows = d.fetchall()
+        print d.rowcount
+        conn.row_factory = ''
+        return json.dumps( {"Result" : "OK", "Records" : [dict(ix) for ix in rows], "TotalRecordCount" : d.rowcount} )
