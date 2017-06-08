@@ -19,8 +19,8 @@ function getCurrTemp(callback) {
     });
 }
 
-function getAllTemp(callback) {
-    $.getJSON('/all/', function( data ) {
+function getAllTemp(_roastLogId, callback) {
+    $.getJSON('/all/', {'roastLogId': _roastLogId}, function( data ) {
         callback( data );
     });
 }
@@ -49,6 +49,7 @@ function drawChartGauge() {
         var currTime;
         getCurrTemp(function(data) {
             dataGauge.setValue(0, 1, data[0].toString());
+            roastLogId = data[4].toString();
             if (jsbutton_clicked>0) {
                 $('#timer').html('<h2>' + data[1].toString() + '</h2>');
                 if (jsbutton_clicked==2) {
@@ -95,7 +96,7 @@ function drawChartLines() {
     //chartLine.draw(dataLine, materialOptions);
     
     chartLinesInterval = setInterval(function() {
-        getAllTemp(function(data) {
+        getAllTemp(roastLogId, function(data) {
             var tempData = new google.visualization.DataTable();
             tempData.addColumn('string', 'Time');
             tempData.addColumn('number', 'Heating');
@@ -109,6 +110,49 @@ function drawChartLines() {
     }, 1*5000);
 }
 
+//**************    Line chart for roasting stats ********//
+function drawChartLinesPast(_roastLogId) {
+
+    var dataLine = google.visualization.arrayToDataTable([
+          ['Time', 'Heating', 'Temperature', 'Temperature Set']
+        ]);
+
+    var materialOptions = {
+        chart: {
+          title: 'Roast temperature and heating chart'
+        },
+        width: 900,
+        height: 300,
+        series: {
+          // Gives each series an axis name that matches the Y-axis below.
+          0: {axis: 'Heating'},
+          1: {axis: 'Temperature'},
+          2: {axis: 'Temperature Set'}
+        },
+        axes: {
+          // Adds labels to each axis; they don't have to match the axis names.
+          y: {
+            Temperature: {label: 'Temperature (Celsius)'},
+            Heating: {label: 'Heating'}
+          }
+        }
+      };
+
+    var chartLine = new google.charts.Line(document.getElementById('curve_chart_past'));
+
+    getAllTemp(_roastLogId, function(data) {
+        var tempData = new google.visualization.DataTable();
+        tempData.addColumn('string', 'Time');
+        tempData.addColumn('number', 'Heating');
+        tempData.addColumn('number', 'Temperature');
+        tempData.addColumn('number', 'Temperature Set');
+        tempData.addRows( data );
+        if ( data.length > 0 ) {
+            chartLine.draw(tempData, materialOptions);
+        }
+    });
+
+}
 
 // ************* Roasting button ************* 
 var myimgobj = document.images["jsbutton"];
@@ -147,7 +191,7 @@ function roastBTNclicked()
             });
 
         } else {
-            $( "span" ).text( "Provide roast details!" ).show().fadeOut( 3000 );
+            $( "#messages_field" ).text( "Provide roast details!" ).show().fadeOut( 3000 );
         }
         console.log(jsbutton_clicked);
     }
@@ -230,7 +274,7 @@ $('document').ready(function () {
     getRoastTempMax(function(data) {
         $('#roastTempMaxInput').val(data[0].toString());
     });
-    $( "#roastTempMaxForm" ).submit(function( event ) {
+    $( '#roastTempMaxForm' ).submit(function( event ) {
         $.ajax({
             type:'get',
                 url:'/setroasttempmax/',
@@ -241,7 +285,7 @@ $('document').ready(function () {
                         alert(error);
                 },
                 success: function (data) {
-                    $( "span" ).text( "Updated" ).show().fadeOut( 1500 );
+                    $( "#messages_field" ).text( "Updated" ).show().fadeOut( 1500 );
                 }
         });
         event.preventDefault();
@@ -254,6 +298,7 @@ $('document').ready(function () {
             //createAction: '#',
             //deleteAction: '#'
         },
+        selecting: true,
         sorting: true,
         multiSorting: true,
         defaultSorting : 'coffee_name ASC',
@@ -290,6 +335,17 @@ $('document').ready(function () {
                 sorting : false,
                 type : 'textarea'
             }
+        },
+        selectionChanged: function (event, data) {
+            var $selectedRows = $('#RoastTableContainer').jtable('selectedRows');
+             if ($selectedRows.length > 0) {
+                    //Show selected rows
+                    $selectedRows.each(function () {
+                        var record = $(this).data('record');
+                        //console.log(record.id);
+                        google.charts.setOnLoadCallback(drawChartLinesPast(record.id));
+                    });
+                }
         }
     });
     $('#RoastTableContainer').jtable('load');

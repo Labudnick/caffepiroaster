@@ -53,25 +53,27 @@ if c.execute('SELECT count(*) from parameters').fetchone()[0] == 0:
 
 class DataAccess:
     def getcurrentstate(self):
-        sqlq = "SELECT round(temp_read, 2), roast_time, status, heating, roast_log_id, first_crack_time FROM roast_status LIMIT 1"
+        sqlq = "SELECT round(temp_read, 2), roast_time, status, heating, roast_log_id, first_crack_time "
+        sqlq += "FROM roast_status LIMIT 1"
         c.execute(sqlq)
         return c.fetchone()
 
-    def getcurrentroastdata(self):
+    def get_roast_data_by_id(self, roast_log_id):
         sqlq = "SELECT "
         sqlq += "    roast_time, "
         sqlq += "    heating, "
         sqlq += "    round(temp_read, 2) as temp_read, "
         sqlq += "    temp_set "
         sqlq += "FROM roast_details "
-        sqlq += "WHERE roast_log_id IN (SELECT roast_log_id FROM roast_status)"
+        sqlq += "WHERE roast_log_id = ?"
 
-        c.execute(sqlq)
+        c.execute(sqlq, (roast_log_id,))
         return c.fetchall()
 
     def insertroastdetails(self, roast_log_id, roast_time, heating, temp_read, temp_set, roasting, first_crack_time):
-        if roasting >0:
-            sqlq = "INSERT INTO roast_details (roast_log_id, roast_time, heating, temp_read, temp_set)  VALUES (?, ?, ?, ?, ?)"
+        if roasting > 0:
+            sqlq = "INSERT INTO roast_details (roast_log_id, roast_time, heating, temp_read, temp_set) "
+            sqlq += "VALUES (?, ?, ?, ?, ?)"
             c.execute(sqlq, (str(roast_log_id), roast_time, str(heating), str(temp_read), str(temp_set)))
 
         sqlq = "UPDATE roast_status SET "
@@ -97,7 +99,9 @@ class DataAccess:
         conn.commit()
 
     def endroasting(self):
-        c.execute("UPDATE roast_status SET roast_time = '00:00', status = 0, roast_log_id = '', first_crack_time='00:00', first_crack_dt=''")
+        sqlq = "UPDATE roast_status "
+        sqlq += "SET roast_time = '00:00', status = 0, roast_log_id = '', first_crack_time='00:00', first_crack_dt=''"
+        c.execute(sqlq)
         conn.commit()
 
     def checkroasting(self):
@@ -122,17 +126,18 @@ class DataAccess:
 
         conn.row_factory = sqlite3.Row
         d = conn.cursor()
-        sqlq = "SELECT id, upper(coffee_name) as coffee_name, date_time, roast_size, beans_size, description FROM roast_log"
+        sqlq = "SELECT id, upper(coffee_name) as coffee_name, date_time, roast_size, beans_size, description "
+        sqlq += "FROM roast_log"
         if sort_order:
             sqlq += " ORDER BY " + sort_order
         sqlq += " LIMIT " + page_size + " OFFSET " + start_index
         rows = d.execute(sqlq).fetchall()
 
         conn.row_factory = ''
-        return json.dumps( {"Result" : "OK", "Records" : [dict(ix) for ix in rows], "TotalRecordCount" : record_count} )
+        return json.dumps({"Result": "OK", "Records": [dict(ix) for ix in rows], "TotalRecordCount": record_count})
 
-    def update_past_roast(self, id, coffee_name, roast_size, beans_size, description):
+    def update_past_roast(self, row_id, coffee_name, roast_size, beans_size, description):
         sqlq = "UPDATE roast_log SET coffee_name = UPPER(?), roast_size = ?, beans_size = ?, description = ? "
         sqlq += "WHERE id = ?"
-        c.execute(sqlq, (coffee_name, roast_size, beans_size, description, id))
+        c.execute(sqlq, (coffee_name, roast_size, beans_size, description, row_id))
         conn.commit()

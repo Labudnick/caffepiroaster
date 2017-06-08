@@ -9,7 +9,7 @@
 
     <link rel="stylesheet" type="text/css" href="css/style.css"/>
     <link rel="stylesheet" type="text/css" href="css/jquery-ui.css">
-    <link href="jtable.2.4.0/themes/metro/blue/jtable.min.css" rel="stylesheet" type="text/css" />
+    <link href="jtable.2.4.0/themes/metro/blue/jtable.min.css" rel="stylesheet" type="text/css"/>
     <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
@@ -21,6 +21,7 @@
         $( function() {
             $( "#accordion" ).accordion();
         } );
+
     </script>
 </head>
 <body>
@@ -41,15 +42,16 @@
                         <form id="roastTempMaxForm" action="javascript:alert( 'success!' );">
                             <div>
                                 <label>Temperature set</label><br>
-                                <input class="text ui-widget-content" type="number" id="roastTempMaxInput" max="300" min="20">
+                                <input class="text ui-widget-content" type="number" id="roastTempMaxInput" max="300"
+                                       min="20">
                                 <input class="button ui-widget-content" type="submit">
                             </div>
                         </form>
-                        <span></span>
+                        <span id="messages_field"></span>
                     </div>
                 </td>
                 <td><a href="#" onMouseUp="return handleMUp()">
-                    <img name="jsbutton" width="266" height="266" border="0" alt="javascript button">
+                    <img name="jsbutton" width="266" height="266" border="0" alt="javascript button" src="#">
                     <!--src="btn_green.png" -->
                 </a>
                 </td>
@@ -62,15 +64,17 @@
                                           placeholder="Coffee name" class="textarea ui-widget-content"></textarea>
                                 <br>
                                 <label>Roast size [g]: </label>
-                                <input type="number" id="roastSizeInput" name="roastSize" value="100" min="80" max="120" class="text ui-widget-content"><br>
+                                <input type="number" id="roastSizeInput" name="roastSize" value="100" min="80" max="120"
+                                       class="text ui-widget-content"><br>
                                 <fieldset>
                                     <legend>Beans size</legend>
-                                    <label for="beansSize">Small</label>
+                                    <label for="beansSizeInputSmall">Small</label>
                                     <input type="radio" id="beansSizeInputSmall" name="beansSize" value="small" checked>
-                                    <label for="beansSize">Large</label>
+                                    <label for="beansSizeInputLarge">Large</label>
                                     <input type="radio" id="beansSizeInputLarge" name="beansSize" value="large">
                                 </fieldset>
-                                <textarea form="roastDetailsForm" id="descriptionInput" name="description" rows="5" cols="30"
+                                <textarea form="roastDetailsForm" id="descriptionInput" name="description" rows="5"
+                                          cols="30"
                                           placeholder="Roast description" class="textarea ui-widget-content"></textarea>
                             </fieldset>
                         </div>
@@ -81,7 +85,10 @@
         <div id="curve_chart" class="chart"></div>
     </div>
     <h3>Past roasts</h3>
-    <div id="RoastTableContainer"></div>
+    <div>
+        <div id="RoastTableContainer"></div>
+        <div id="curve_chart_past" class="chart"></div>
+    </div>
     <h3>System settings</h3>
     <div>
         <button class="ui-button" onMouseUp="return powerOffBtnUp()">Power off the system</button>

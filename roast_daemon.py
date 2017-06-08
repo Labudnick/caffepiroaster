@@ -67,8 +67,11 @@ def scantempwrite(p_start_time, p_heat, p_roast_status):
     l_process_time = str(datetime.datetime.now() - p_start_time).split('.', 2)[0][2:]
     l_first_crack_time = '00:00'
     if p_roast_status[0] > 1:
-        l_first_crack_time = str(datetime.datetime.now() - datetime.datetime.strptime(p_roast_status[4], '%Y-%m-%d %H:%M:%S')).split('.', 2)[0][2:]
-    DataAccess().insertroastdetails(p_roast_status[3], l_process_time, p_heat,  l_sens_temp, p_roast_status[2], p_roast_status[0], l_first_crack_time)
+        l_first_crack_time = \
+        str(datetime.datetime.now() - datetime.datetime.strptime(p_roast_status[4], '%Y-%m-%d %H:%M:%S')).split('.', 2)[
+            0][2:]
+    DataAccess().insertroastdetails(p_roast_status[3], l_process_time, p_heat, l_sens_temp, p_roast_status[2],
+                                    p_roast_status[0], l_first_crack_time)
     return l_sens_temp
 
 

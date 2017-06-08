@@ -27,7 +27,8 @@ class TempLast(tornado.web.RequestHandler):
 
 class TempAll(tornado.web.RequestHandler):
     def get(self):
-        data = DataAccess().getcurrentroastdata()
+        roast_log_id = self.get_argument("roastLogId", None, True)
+        data = DataAccess().get_roast_data_by_id(roast_log_id)
         self.write(json.dumps(data))
 
 
@@ -65,21 +66,21 @@ class SetRoastTempMax(tornado.web.RequestHandler):
 
 class GetRoastsList(tornado.web.RequestHandler):
     def post(self):
-        jtSorting = self.get_argument("jtSorting", None, True)
-        jtStartIndex = self.get_argument("jtStartIndex", None, True)
-        jtPageSize = self.get_argument("jtPageSize", None, True)
-        roasts_list = DataAccess().getroastslist(jtSorting, jtStartIndex, jtPageSize)
+        jt_sorting = self.get_argument("jtSorting", None, True)
+        jt_start_index = self.get_argument("jtStartIndex", None, True)
+        jt_page_size = self.get_argument("jtPageSize", None, True)
+        roasts_list = DataAccess().getroastslist(jt_sorting, jt_start_index, jt_page_size)
         self.write(roasts_list)
 
 
-class updatePastRoast(tornado.web.RequestHandler):
+class UpdatePastRoast(tornado.web.RequestHandler):
     def post(self):
-        id = self.get_argument("id", None, True)
+        row_id = self.get_argument("id", None, True)
         coffee_name = self.get_argument("coffee_name", None, True)
         roast_size = self.get_argument("roast_size", None, True)
         beans_size = self.get_argument("beans_size", None, True)
         description = self.get_argument("description", None, True)
-        DataAccess().update_past_roast(id, coffee_name, roast_size, beans_size, description)
+        DataAccess().update_past_roast(row_id, coffee_name, roast_size, beans_size, description)
         self.write(json.dumps({"Result":"OK"}))
 
 class PowerOff(tornado.web.RequestHandler):
@@ -95,7 +96,7 @@ application = tornado.web.Application([
     (r"/getroasttempmax/", GetRoastTempMax),
     (r"/setroasttempmax/", SetRoastTempMax),
     (r"/roastslist/", GetRoastsList),
-    (r"/updatepastroast/", updatePastRoast),
+    (r"/updatepastroast/", UpdatePastRoast),
     (r"/poweroff/", PowerOff),
     (r"/(.*)", tornado.web.StaticFileHandler, {"path": root, "default_filename": "index.html"})
 ])
