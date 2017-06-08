@@ -86,7 +86,7 @@ class DataAccess:
         return c.execute("SELECT value FROM parameters WHERE name='roast_temp_max'").fetchone()
 
     def startroasting(self, temp_set, description, coffee_name, roast_size, beans_size):
-        sqlq = "INSERT INTO roast_log (description, coffee_name, roast_size, beans_size) VALUES (?, ?, ?, ?)"
+        sqlq = "INSERT INTO roast_log (description, coffee_name, roast_size, beans_size) VALUES (?, UPPER(?), ?, ?)"
         c.execute(sqlq, (description, coffee_name, roast_size, beans_size))
         lastrowid = c.lastrowid
         sqlq = "UPDATE roast_status SET "
@@ -117,14 +117,16 @@ class DataAccess:
         conn.commit()
 
     def getroastslist(self, sort_order, start_index, page_size):
+
+        record_count = c.execute("SELECT COUNT(1) FROM roast_log").fetchone()
+
         conn.row_factory = sqlite3.Row
         d = conn.cursor()
-        sqlq = "SELECT id, coffee_name, date_time, roast_size, beans_size FROM roast_log"
+        sqlq = "SELECT id, upper(coffee_name) as coffee_name, date_time, roast_size, beans_size, description FROM roast_log"
         if sort_order:
             sqlq += " ORDER BY " + sort_order
         sqlq += " LIMIT " + page_size + " OFFSET " + start_index
-        d.execute(sqlq)
-        rows = d.fetchall()
-        print d.rowcount
+        rows = d.execute(sqlq).fetchall()
+
         conn.row_factory = ''
-        return json.dumps( {"Result" : "OK", "Records" : [dict(ix) for ix in rows], "TotalRecordCount" : d.rowcount} )
+        return json.dumps( {"Result" : "OK", "Records" : [dict(ix) for ix in rows], "TotalRecordCount" : record_count} )

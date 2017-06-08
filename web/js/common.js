@@ -186,9 +186,9 @@ function roastBTNclicked()
                 clearInterval(chartLinesInterval);
                 $('#1st_crack_label').html('');
                 $('#1st_crack_timer').html('');
+                $('#RoastTableContainer').jtable('load');
             }
         });
-        console.log(jsbutton_clicked);
     }
     return true;
 }
@@ -249,15 +249,16 @@ $('document').ready(function () {
     $('#RoastTableContainer').jtable({
         title: 'Roasts list',
         actions: {
-            listAction: '/roastslist/',
+            listAction: '/roastslist/'//,
             //createAction: '#',
-            updateAction: '#',
-            deleteAction: '#'
+            //updateAction: '#',
+            //deleteAction: '#'
         },
         sorting: true,
         multiSorting: true,
         defaultSorting : 'coffee_name ASC',
         paging : true,
+        columnSelectable: true,
         fields: {
             id: {
                 key: true,
@@ -265,20 +266,24 @@ $('document').ready(function () {
             },
             coffee_name: {
                 title: 'Coffee Name',
-                width: '40%'
+                width: '20%'
             },
             date_time: {
                 title: 'Date',
-                width: '20%',
-                type:  'date'
+                width: '15%'//,
+//                type:  'date'
             },
             roast_size: {
                 title: 'Roast Size [g]',
-                width: '20%'
+                width: '10%'
             },
             beans_size: {
                 title: 'Beans Size',
-                width: '20%'
+                width: '10%'
+            },
+            description: {
+                title: 'Description',
+                width: '45%'
             }
         }
     });

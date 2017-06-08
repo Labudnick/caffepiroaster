@@ -68,10 +68,7 @@ class GetRoastsList(tornado.web.RequestHandler):
         jtSorting = self.get_argument("jtSorting", None, True)
         jtStartIndex = self.get_argument("jtStartIndex", None, True)
         jtPageSize = self.get_argument("jtPageSize", None, True)
-
-        print jtSorting, jtStartIndex, jtPageSize
         roasts_list = DataAccess().getroastslist(jtSorting, jtStartIndex, jtPageSize)
-
         self.write(roasts_list)
 
 class PowerOff(tornado.web.RequestHandler):
