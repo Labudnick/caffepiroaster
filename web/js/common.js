@@ -249,16 +249,15 @@ $('document').ready(function () {
     $('#RoastTableContainer').jtable({
         title: 'Roasts list',
         actions: {
-            listAction: '/roastslist/'//,
+            listAction: '/roastslist/',
+            updateAction: '/updatepastroast/' //,
             //createAction: '#',
-            //updateAction: '#',
             //deleteAction: '#'
         },
         sorting: true,
         multiSorting: true,
         defaultSorting : 'coffee_name ASC',
         paging : true,
-        columnSelectable: true,
         fields: {
             id: {
                 key: true,
@@ -270,8 +269,10 @@ $('document').ready(function () {
             },
             date_time: {
                 title: 'Date',
-                width: '15%'//,
-//                type:  'date'
+                width: '15%',
+                edit : false//,
+//                type:  'date',
+//                displayFormat : 'yy-mm-dd H:i'
             },
             roast_size: {
                 title: 'Roast Size [g]',
@@ -279,11 +280,15 @@ $('document').ready(function () {
             },
             beans_size: {
                 title: 'Beans Size',
-                width: '10%'
+                width: '10%',
+                options : { 'small':'Small', 'large':'Large'},
+                type : 'radiobutton'
             },
             description: {
                 title: 'Description',
-                width: '45%'
+                width: '45%',
+                sorting : false,
+                type : 'textarea'
             }
         }
     });

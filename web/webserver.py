@@ -71,6 +71,17 @@ class GetRoastsList(tornado.web.RequestHandler):
         roasts_list = DataAccess().getroastslist(jtSorting, jtStartIndex, jtPageSize)
         self.write(roasts_list)
 
+
+class updatePastRoast(tornado.web.RequestHandler):
+    def post(self):
+        id = self.get_argument("id", None, True)
+        coffee_name = self.get_argument("coffee_name", None, True)
+        roast_size = self.get_argument("roast_size", None, True)
+        beans_size = self.get_argument("beans_size", None, True)
+        description = self.get_argument("description", None, True)
+        DataAccess().update_past_roast(id, coffee_name, roast_size, beans_size, description)
+        self.write(json.dumps({"Result":"OK"}))
+
 class PowerOff(tornado.web.RequestHandler):
     def get(self):
         os.system("sudo poweroff &")
@@ -84,6 +95,7 @@ application = tornado.web.Application([
     (r"/getroasttempmax/", GetRoastTempMax),
     (r"/setroasttempmax/", SetRoastTempMax),
     (r"/roastslist/", GetRoastsList),
+    (r"/updatepastroast/", updatePastRoast),
     (r"/poweroff/", PowerOff),
     (r"/(.*)", tornado.web.StaticFileHandler, {"path": root, "default_filename": "index.html"})
 ])

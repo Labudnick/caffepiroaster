@@ -130,3 +130,9 @@ class DataAccess:
 
         conn.row_factory = ''
         return json.dumps( {"Result" : "OK", "Records" : [dict(ix) for ix in rows], "TotalRecordCount" : record_count} )
+
+    def update_past_roast(self, id, coffee_name, roast_size, beans_size, description):
+        sqlq = "UPDATE roast_log SET coffee_name = UPPER(?), roast_size = ?, beans_size = ?, description = ? "
+        sqlq += "WHERE id = ?"
+        c.execute(sqlq, (coffee_name, roast_size, beans_size, description, id))
+        conn.commit()
