@@ -1,7 +1,6 @@
 // ************* Current temperature chart *************
 google.charts.load('current', {'packages':['gauge', 'line']});
 google.charts.setOnLoadCallback(drawChartGauge);
-google.charts.setOnLoadCallback(drawChartLines);
 
 var chartLinesInterval;
 var roastLogId;
@@ -64,7 +63,7 @@ function drawChartGauge() {
 }
 
 //**************    Line chart for roasting stats ********//
-function drawChartLines() {
+function drawChartLines(pRoastLogId, pChartId, pInterval) {
   
     var dataLine = google.visualization.arrayToDataTable([
           ['Time', 'Heating', 'Temperature', 'Temperature Set']
@@ -91,12 +90,24 @@ function drawChartLines() {
         }
       };
 
-    var chartLine = new google.charts.Line(document.getElementById('curve_chart'));
+    var chartLine = new google.charts.Line(document.getElementById(pChartId));
 
-    //chartLine.draw(dataLine, materialOptions);
-    
-    chartLinesInterval = setInterval(function() {
-        getAllTemp(roastLogId, function(data) {
+    if (pInterval > 0) {
+        chartLinesInterval = setInterval(function() {
+            getAllTemp(pRoastLogId, function(data) {
+                var tempData = new google.visualization.DataTable();
+                tempData.addColumn('string', 'Time');
+                tempData.addColumn('number', 'Heating');
+                tempData.addColumn('number', 'Temperature');
+                tempData.addColumn('number', 'Temperature Set');
+                tempData.addRows( data );
+                if ( data.length > 0 ) {
+                    chartLine.draw(tempData, materialOptions);
+                }
+            });
+        }, 1*5000);
+    } else {
+        getAllTemp(pRoastLogId, function(data) {
             var tempData = new google.visualization.DataTable();
             tempData.addColumn('string', 'Time');
             tempData.addColumn('number', 'Heating');
@@ -107,51 +118,7 @@ function drawChartLines() {
                 chartLine.draw(tempData, materialOptions);
             }
         });
-    }, 1*5000);
-}
-
-//**************    Line chart for roasting stats ********//
-function drawChartLinesPast(_roastLogId) {
-
-    var dataLine = google.visualization.arrayToDataTable([
-          ['Time', 'Heating', 'Temperature', 'Temperature Set']
-        ]);
-
-    var materialOptions = {
-        chart: {
-          title: 'Roast temperature and heating chart'
-        },
-        width: 900,
-        height: 300,
-        series: {
-          // Gives each series an axis name that matches the Y-axis below.
-          0: {axis: 'Heating'},
-          1: {axis: 'Temperature'},
-          2: {axis: 'Temperature Set'}
-        },
-        axes: {
-          // Adds labels to each axis; they don't have to match the axis names.
-          y: {
-            Temperature: {label: 'Temperature (Celsius)'},
-            Heating: {label: 'Heating'}
-          }
-        }
-      };
-
-    var chartLine = new google.charts.Line(document.getElementById('curve_chart_past'));
-
-    getAllTemp(_roastLogId, function(data) {
-        var tempData = new google.visualization.DataTable();
-        tempData.addColumn('string', 'Time');
-        tempData.addColumn('number', 'Heating');
-        tempData.addColumn('number', 'Temperature');
-        tempData.addColumn('number', 'Temperature Set');
-        tempData.addRows( data );
-        if ( data.length > 0 ) {
-            chartLine.draw(tempData, materialOptions);
-        }
-    });
-
+    }
 }
 
 // ************* Roasting button ************* 
@@ -187,13 +154,14 @@ function roastBTNclicked()
                     jsbutton_clicked++;
                     document.images["jsbutton"].src = images[jsbutton_clicked].src;
                     $('#timer').html('<h2>00:00</h2>');
+                    roastLogId = data;
+                    google.charts.setOnLoadCallback(drawChartLines(roastLogId, 'curve_chart', 5000));
                 }
             });
 
         } else {
             $( "#messages_field" ).text( "Provide roast details!" ).show().fadeOut( 3000 );
         }
-        console.log(jsbutton_clicked);
     }
     // 1st crack encountered
     else if ( jsbutton_clicked === 1 )    {
@@ -228,6 +196,7 @@ function roastBTNclicked()
                 $("fieldset").removeAttr('disabled');
                 $('#timer').html('<h2>00:00</h2>');
                 clearInterval(chartLinesInterval);
+                $('#curve_chart').html('');
                 $('#1st_crack_label').html('');
                 $('#1st_crack_timer').html('');
                 $('#RoastTableContainer').jtable('load');
@@ -343,7 +312,7 @@ $('document').ready(function () {
                     $selectedRows.each(function () {
                         var record = $(this).data('record');
                         //console.log(record.id);
-                        google.charts.setOnLoadCallback(drawChartLinesPast(record.id));
+                        google.charts.setOnLoadCallback(drawChartLines(record.id, 'curve_chart_past', 0));
                     });
                 }
         }

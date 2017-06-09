@@ -97,6 +97,7 @@ class DataAccess:
         sqlq += "temp_set = ?"
         c.execute(sqlq, (lastrowid, str(temp_set)))
         conn.commit()
+        return lastrowid
 
     def endroasting(self):
         sqlq = "UPDATE roast_status "
