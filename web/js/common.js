@@ -259,6 +259,10 @@ $('document').ready(function () {
         });
         event.preventDefault();
     });
+    $( '#btnCopyRoastForm' ).submit(function( event ) {
+        alert('Copy Roast button pressed');
+        event.preventDefault();
+    });
     $('#RoastTableContainer').jtable({
         title: 'Roasts list',
         actions: {
@@ -279,7 +283,7 @@ $('document').ready(function () {
             },
             coffee_name: {
                 title: 'Coffee Name',
-                width: '20%'
+                width: '30%'
             },
             date_time: {
                 title: 'Date',
@@ -300,21 +304,33 @@ $('document').ready(function () {
             },
             description: {
                 title: 'Description',
-                width: '45%',
                 sorting : false,
-                type : 'textarea'
+                type : 'textarea',
+                list : false
             }
+//            ,
+//            myButton: {
+//                width: '10%',
+//                display: function(data) {
+//                     return '<button type="button" onclick="alert()">Copy roast</button> ';
+//                }
+//            },
         },
         selectionChanged: function (event, data) {
             var $selectedRows = $('#RoastTableContainer').jtable('selectedRows');
-             if ($selectedRows.length > 0) {
-                    //Show selected rows
-                    $selectedRows.each(function () {
-                        var record = $(this).data('record');
-                        //console.log(record.id);
-                        google.charts.setOnLoadCallback(drawChartLines(record.id, 'curve_chart_past', 0));
-                    });
-                }
+            if ($selectedRows.length > 0) {
+                //Show selected rows
+                $selectedRows.each(function () {
+                    var record = $(this).data('record');
+                    //console.log(record.id);
+
+                    google.charts.setOnLoadCallback(drawChartLines(record.id, 'curve_chart_past', 0));
+                    $('#btnCopyRoastForm').html('<input id="btnCopyRoast" class="ui-button ui-widget ui-corner-all" type="submit" value="Copy selected roast">');
+                });
+            } else {
+                $('#curve_chart_past').html('');
+                $('#btnCopyRoastForm').html('');
+            }
         }
     });
     $('#RoastTableContainer').jtable('load');
