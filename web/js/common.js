@@ -265,6 +265,9 @@ $('document').ready(function () {
         if (pastRoastData.beans_size) {
             $('input[name=beansSize][value="'+ pastRoastData.beans_size + '"]').prop('checked', true);
         }
+        $("#accordion").accordion({
+            active: 0
+        });
         event.preventDefault();
     });
     $('#RoastTableContainer').jtable({
