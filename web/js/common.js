@@ -274,9 +274,9 @@ $('document').ready(function () {
         title: 'Roasts list',
         actions: {
             listAction: '/roastslist/',
-            updateAction: '/updatepastroast/' //,
+            updateAction: '/updatepastroast/',
             //createAction: '#',
-            //deleteAction: '#'
+            deleteAction: '/deleteroast/'
         },
         selecting: true,
         sorting: true,

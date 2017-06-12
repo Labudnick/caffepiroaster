@@ -73,6 +73,12 @@ class GetRoastsList(tornado.web.RequestHandler):
         self.write(roasts_list)
 
 
+class DeletePastRoast(tornado.web.RequestHandler):
+    def post(self):
+        roastLogId = self.get_argument("id", None, True)
+        result = DataAccess().delete_past_roast(roastLogId)
+        self.write(result)
+
 class UpdatePastRoast(tornado.web.RequestHandler):
     def post(self):
         row_id = self.get_argument("id", None, True)
@@ -97,6 +103,7 @@ application = tornado.web.Application([
     (r"/setroasttempmax/", SetRoastTempMax),
     (r"/roastslist/", GetRoastsList),
     (r"/updatepastroast/", UpdatePastRoast),
+    (r"/deleteroast/", DeletePastRoast),
     (r"/poweroff/", PowerOff),
     (r"/(.*)", tornado.web.StaticFileHandler, {"path": root, "default_filename": "index.html"})
 ])

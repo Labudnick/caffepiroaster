@@ -5,6 +5,7 @@ import os
 ROOT = os.path.dirname(__file__)
 conn = sqlite3.connect(ROOT + '/coffeepiroaster.db')
 c = conn.cursor()
+c.execute("PRAGMA foreign_keys")
 
 sql = "CREATE TABLE  IF NOT EXISTS roast_status ( "
 sql += "id                  INTEGER PRIMARY KEY AUTOINCREMENT, "
@@ -136,6 +137,12 @@ class DataAccess:
 
         conn.row_factory = ''
         return json.dumps({"Result": "OK", "Records": [dict(ix) for ix in rows], "TotalRecordCount": record_count})
+
+    def delete_past_roast(self, roast_log_id):
+        c.execute("DELETE FROM roast_details WHERE roast_log_id = ?", (roast_log_id,))
+        c.execute("DELETE FROM roast_log WHERE id = ?", (roast_log_id,))
+        conn.commit()
+        return json.dumps({"Result": "OK"})
 
     def update_past_roast(self, row_id, coffee_name, roast_size, beans_size, description):
         sqlq = "UPDATE roast_log SET coffee_name = UPPER(?), roast_size = ?, beans_size = ?, description = ? "
