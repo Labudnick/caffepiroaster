@@ -54,7 +54,7 @@ def isnan(num):
 roasting_temp = 225.00
 roasting_delta = 0
 heat = 0
-cooldown_temp = 30
+cooldown_temp = 35
 
 
 def scantempwrite(p_start_time, p_heat, p_roast_status):

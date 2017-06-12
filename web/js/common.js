@@ -4,6 +4,7 @@ google.charts.setOnLoadCallback(drawChartGauge);
 
 var chartLinesInterval;
 var roastLogId;
+var pastRoastData;
 
 //**************    Data access functions ********//
 function getRoastTempMax( callback)  {
@@ -230,8 +231,6 @@ function preload() {
     }
 }
 
-
-
 //***************   On page load *****************//
 $('document').ready(function () {
     preload(
@@ -260,7 +259,12 @@ $('document').ready(function () {
         event.preventDefault();
     });
     $( '#btnCopyRoastForm' ).submit(function( event ) {
-        alert('Copy Roast button pressed');
+        $('#coffeeNameInput').val(pastRoastData.coffee_name);
+        $('#roastSizeInput').val(pastRoastData.roast_size);
+        console.log(pastRoastData.beans_size);
+        if (pastRoastData.beans_size) {
+            $('input[name=beansSize][value="'+ pastRoastData.beans_size + '"]').prop('checked', true);
+        }
         event.preventDefault();
     });
     $('#RoastTableContainer').jtable({
@@ -322,9 +326,8 @@ $('document').ready(function () {
                 //Show selected rows
                 $selectedRows.each(function () {
                     var record = $(this).data('record');
-                    //console.log(record.id);
-
                     google.charts.setOnLoadCallback(drawChartLines(record.id, 'curve_chart_past', 0));
+                    pastRoastData = record;
                     $('#btnCopyRoastForm').html('<input id="btnCopyRoast" class="ui-button ui-widget ui-corner-all" type="submit" value="Copy selected roast">');
                 });
             } else {
