@@ -309,19 +309,17 @@ $('document').ready(function () {
                 options : { 'small':'Small', 'large':'Large'},
                 type : 'radiobutton'
             },
+            first_crack_time: {
+                title: 'First crack at',
+                width: '10%',
+                edit : false
+            },
             description: {
                 title: 'Description',
                 sorting : false,
                 type : 'textarea',
                 list : false
             }
-//            ,
-//            myButton: {
-//                width: '10%',
-//                display: function(data) {
-//                     return '<button type="button" onclick="alert()">Copy roast</button> ';
-//                }
-//            },
         },
         selectionChanged: function (event, data) {
             var $selectedRows = $('#RoastTableContainer').jtable('selectedRows');

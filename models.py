@@ -128,7 +128,8 @@ class DataAccess:
 
         conn.row_factory = sqlite3.Row
         d = conn.cursor()
-        sqlq = "SELECT id, upper(coffee_name) as coffee_name, date_time, roast_size, beans_size, description "
+        sqlq = "SELECT id, upper(coffee_name) as coffee_name, date_time, roast_size, beans_size, description, "
+        sqlq += "strftime('%M:%S', time(julianday(first_crack_time) - julianday(date_time))) as first_crack_time "
         sqlq += "FROM roast_log"
         if sort_order:
             sqlq += " ORDER BY " + sort_order
