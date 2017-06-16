@@ -31,7 +31,8 @@ sql += "coffee_name TEXT, "
 sql += "roast_size TEXT, "
 sql += "beans_size INTEGER, "
 sql += "description TEXT,"
-sql += "first_crack_time DATETIME)"
+sql += "first_crack_time DATETIME"
+sql += "roast_end_time DATETIME)"
 c.execute(sql)
 
 sql = "CREATE TABLE IF NOT EXISTS roast_details ("
@@ -51,6 +52,13 @@ if c.execute('SELECT count(*) from parameters').fetchone()[0] == 0:
     c.execute("INSERT INTO parameters (name, value) values ('roast_temp_max', '225')")
     conn.commit()
 
+if c.execute("select count(1) from roast_log where roast_end_time = ''").fetchone()[0] > 0:
+    sql = 'update ROAST_LOG set roast_end_time = datetime(date_time, (SELECT "+" || substr(MAX(roast_time), 1, 2) '
+    sql += '|| " minutes" from roast_details WHERE roast_log_id = roast_log.id), (SELECT "+" || '
+    sql += 'substr(MAX(roast_time), 4, 2) || " seconds" from roast_details WHERE roast_log_id = roast_log.id)) '
+    sql += "WHERE roast_end_time = ''"
+    c.execute(sql)
+    conn.commit()
 
 class DataAccess:
     def getcurrentstate(self):
@@ -129,7 +137,9 @@ class DataAccess:
         conn.row_factory = sqlite3.Row
         d = conn.cursor()
         sqlq = "SELECT id, upper(coffee_name) as coffee_name, date_time, roast_size, beans_size, description, "
-        sqlq += "strftime('%M:%S', time(julianday(first_crack_time) - julianday(date_time))) as first_crack_time "
+        sqlq += "strftime('%M:%S', time(julianday(first_crack_time) - julianday(date_time))) as first_crack_time, "
+        sqlq += "strftime('%M:%S', time(julianday(roast_end_time) - julianday(first_crack_time))) as crack_to_end, "
+        sqlq += "strftime('%M:%S', time(julianday(roast_end_time) - julianday(date_time))) as start_to_end "
         sqlq += "FROM roast_log"
         if sort_order:
             sqlq += " ORDER BY " + sort_order

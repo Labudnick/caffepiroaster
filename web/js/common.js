@@ -281,7 +281,7 @@ $('document').ready(function () {
         selecting: true,
         sorting: true,
         multiSorting: true,
-        defaultSorting : 'coffee_name ASC',
+        defaultSorting : 'date_time DESC',
         paging : true,
         fields: {
             id: {
@@ -290,7 +290,7 @@ $('document').ready(function () {
             },
             coffee_name: {
                 title: 'Coffee Name',
-                width: '30%'
+                width: '35%'
             },
             date_time: {
                 title: 'Date',
@@ -311,6 +311,16 @@ $('document').ready(function () {
             },
             first_crack_time: {
                 title: 'First crack at',
+                width: '10%',
+                edit : false
+            },
+            crack_to_end: {
+                title: 'Crack to end',
+                width: '10%',
+                edit : false
+            },
+            start_to_end: {
+                title: 'Start to end',
                 width: '10%',
                 edit : false
             },
