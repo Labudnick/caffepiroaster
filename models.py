@@ -52,11 +52,11 @@ if c.execute('SELECT count(*) from parameters').fetchone()[0] == 0:
     c.execute("INSERT INTO parameters (name, value) values ('roast_temp_max', '225')")
     conn.commit()
 
-if c.execute("select count(1) from roast_log where roast_end_time = ''").fetchone()[0] > 0:
+if c.execute("select count(1) from roast_log where ifnull(roast_end_time, '') = ''").fetchone()[0] > 0:
     sql = 'update ROAST_LOG set roast_end_time = datetime(date_time, (SELECT "+" || substr(MAX(roast_time), 1, 2) '
     sql += '|| " minutes" from roast_details WHERE roast_log_id = roast_log.id), (SELECT "+" || '
     sql += 'substr(MAX(roast_time), 4, 2) || " seconds" from roast_details WHERE roast_log_id = roast_log.id)) '
-    sql += "WHERE roast_end_time = ''"
+    sql += "WHERE ifnull(roast_end_time, '') = ''"
     c.execute(sql)
     conn.commit()
 
@@ -108,10 +108,14 @@ class DataAccess:
         conn.commit()
         return lastrowid
 
-    def endroasting(self):
+    def endroasting(self, roast_log_id):
         sqlq = "UPDATE roast_status "
         sqlq += "SET roast_time = '00:00', status = 0, roast_log_id = '', first_crack_time='00:00', first_crack_dt=''"
         c.execute(sqlq)
+        sqlq = "UPDATE roast_log "
+        sqlq += "SET roast_end_time = datetime('now', 'localtime') "
+        sqlq += "WHERE id = ?"
+        c.execute(sqlq, (roast_log_id,))
         conn.commit()
 
     def checkroasting(self):

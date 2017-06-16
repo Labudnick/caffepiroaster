@@ -44,7 +44,8 @@ class RoastStart(tornado.web.RequestHandler):
 
 class RoastEnd(tornado.web.RequestHandler):
     def get(self):
-        DataAccess().endroasting()
+        roast_log_id = self.get_argument("roast_log_id", None, True)
+        DataAccess().endroasting(roast_log_id)
 
 
 class FirstCrack(tornado.web.RequestHandler):

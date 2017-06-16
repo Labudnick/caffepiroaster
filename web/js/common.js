@@ -185,6 +185,7 @@ function roastBTNclicked()
         $.ajax({
             type:'get',
             url:'/end/',
+            data: {"roast_log_id" : roastLogId},
             cache:false,
             async:true,
             error: function(request, status, error) {
