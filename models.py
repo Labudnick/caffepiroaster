@@ -134,9 +134,14 @@ class DataAccess:
         c.execute("UPDATE roast_status SET temp_set = ?", (str(roast_temp_max),))
         conn.commit()
 
-    def getroastslist(self, sort_order, start_index, page_size):
+    def getroastslist(self, name_filter, sort_order, start_index, page_size):
 
-        record_count = c.execute("SELECT COUNT(1) FROM roast_log").fetchone()
+        sqlq = "SELECT COUNT(1) FROM roast_log"
+        if name_filter:
+            sqlq += " WHERE UPPER(coffee_name) like UPPER('%" + name_filter + "%')"
+        print (sqlq)
+
+        record_count = c.execute(sqlq).fetchone()
 
         conn.row_factory = sqlite3.Row
         d = conn.cursor()
@@ -145,6 +150,8 @@ class DataAccess:
         sqlq += "strftime('%M:%S', time(julianday(roast_end_time) - julianday(first_crack_time))) as crack_to_end, "
         sqlq += "strftime('%M:%S', time(julianday(roast_end_time) - julianday(date_time))) as start_to_end "
         sqlq += "FROM roast_log"
+        if name_filter:
+            sqlq += " WHERE UPPER(coffee_name) like '%" + name_filter + "%'"
         if sort_order:
             sqlq += " ORDER BY " + sort_order
         sqlq += " LIMIT " + page_size + " OFFSET " + start_index

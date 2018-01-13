@@ -34,14 +34,14 @@
                     <div id="chart_div" style="width: 300px; height: 300px;"></div>
                 </td>
                 <td>
-                    <div id="timer_label"><h2>Roast time</h2></div>
+                    <div id="timer_label"><h2>Timer</h2></div>
                     <div id="timer" class="timer"><h2>00:00</h2></div>
                     <div id="1st_crack_label"></div>
                     <div id="1st_crack_timer" class="timer"></div>
                     <div>
                         <form id="roastTempMaxForm" action="javascript:alert( 'success!' );">
                             <div>
-                                <label>Temperature set</label><br>
+                                <label>Temp. set</label><br>
                                 <input class="text ui-widget-content" type="number" id="roastTempMaxInput" max="300"
                                        min="20">
                                 <input class="button ui-widget-content" type="submit">
@@ -85,13 +85,19 @@
     </div>
     <h3 class="past_roasts">Past roasts</h3>
     <div>
+	<div class="filtering">
+		<form id="pastRoastsFilterForm">
+			Coffee name: <input class="text ui-widget-content" type="text" id="pastRoastsNameFilter" />
+			<input class="button ui-widget-content" type="submit"></button>
+		</form>
+	</div>
         <div id="RoastTableContainer"></div>
         <div><form id="btnCopyRoastForm"></form></div>
         <div id="curve_chart_past" class="chart"></div>
     </div>
     <h3 class="system_settings">System settings</h3>
     <div>
-        <button class="ui-button" onMouseUp="return powerOffBtnUp()">Power off the system</button>
+        <button class="button ui-widget-content" onMouseUp="return powerOffBtnUp()">Power off the system</button>
     </div>
 </div>
 

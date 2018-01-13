@@ -67,10 +67,11 @@ class SetRoastTempMax(tornado.web.RequestHandler):
 
 class GetRoastsList(tornado.web.RequestHandler):
     def post(self):
+	jt_name_filter = self.get_argument("jtNameFilter", None, True)
         jt_sorting = self.get_argument("jtSorting", None, True)
         jt_start_index = self.get_argument("jtStartIndex", None, True)
         jt_page_size = self.get_argument("jtPageSize", None, True)
-        roasts_list = DataAccess().getroastslist(jt_sorting, jt_start_index, jt_page_size)
+        roasts_list = DataAccess().getroastslist(jt_name_filter, jt_sorting, jt_start_index, jt_page_size)
         self.write(roasts_list)
 
 

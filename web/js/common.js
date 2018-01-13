@@ -348,5 +348,18 @@ $('document').ready(function () {
             }
         }
     });
+
+    //Re-load records when user click 'load records' button.
+    $('#pastRoastsFilterForm').submit(function (e) {
+//	console.log($('#pastRoastsNameFilter').val());
+        e.preventDefault();
+        $('#RoastTableContainer').jtable('load', {
+            jtNameFilter: $('#pastRoastsNameFilter').val()
+        });
+    });
+ 
+    //Load all records when page is first shown
+    $('#LoadRecordsButton').click();
+
     $('#RoastTableContainer').jtable('load');
 });
