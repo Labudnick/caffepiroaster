@@ -1,1 +1,1 @@
-touch ./.roast_stop_flag
+sudo killall python

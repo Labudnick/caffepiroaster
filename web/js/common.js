@@ -1,44 +1,55 @@
-// ************* Current temperature chart *************
+//************* Current temperature chart *************//
 google.charts.load('current', {'packages':['gauge', 'line']});
 google.charts.setOnLoadCallback(drawChartGauge);
 
 var chartLinesInterval;
 var roastLogId;
 var pastRoastData;
+var roastStep = 0;
+var roastTempMax;
 
 //**************    Data access functions ********//
 function getRoastTempMax( callback)  {
     $.getJSON('/getroasttempmax/', function( data ) {
-            callback(data);
+        callback(data);
     });
-}
+};
 
 function getCurrTemp(callback) {
     $.getJSON('/last/', function( data ) {
-            callback( data );
+        callback( data );
     });
-}
+};
 
 function getAllTemp(_roastLogId, callback) {
     $.getJSON('/all/', {'roastLogId': _roastLogId}, function( data ) {
         callback( data );
     });
-}
+};
 
-//**************    Gauge chart for temperature measurements ********//
+function getInnitialState(callback) {
+    $.getJSON('/init/', function( data )  {
+        callback(data);
+    });
+};
+
+//**************    Google gauge chart for temperature measurements ********//
 function drawChartGauge() {
     var dataGauge = google.visualization.arrayToDataTable([
         ['Label', 'Value'],
-        ['Temp', 20]
+        ['Temp', 0]
     ]);
     
     var optionsGauge = {
-        width: 300, height: 300,
+        //width: 315, height: 315,
         redFrom: 230, redTo: 250,
         yellowFrom: 205, yellowTo: 230,
         minorTicks: 5,
-        majorTicks: ['20', '100', '150', '200', '250'],
-        min:20, max: 250
+        majorTicks: ['0','50','100','150','200','250'],
+        min:0, max: 250,
+        animation: {
+            easing:'inAndOut',
+        }
     };
 
     var chartGauge = new google.visualization.Gauge(document.getElementById('chart_div'));
@@ -46,21 +57,25 @@ function drawChartGauge() {
     chartGauge.draw(dataGauge, optionsGauge);
   
     setInterval(function() {
-        var currTime;
         getCurrTemp(function(data) {
-            dataGauge.setValue(0, 1, data[0].toString());
-            roastLogId = data[4].toString();
-            if (jsbutton_clicked>0) {
-                $('#timer').html('<h2>' + data[1].toString() + '</h2>');
-                if (jsbutton_clicked==2) {
-                    $('#1st_crack_label').html('<h2>1st crack</h2>');
-                    $('#1st_crack_timer').html('<h2>' + data[5].toString() + '</h2>');
-                };
+            dataGauge.setValue(0, 1, data[0]);
+            roastLogId = data[4];
+            roastStep = data[2];
+            document.images["jsbutton"].src = images[roastStep].src;
+            $('#fire_button').prop('disabled', false).css('opacity',1);
+            $('#toFirstCrackTime').val(data[5]);
+            //if (roastStep > 1) {
+                $('#fromFirstCrackTime').val(data[6]);
+            //};
+            if (data[1] != null) {
+                $('#overallRoastTime').val(data[1]+':00');
+            }
+            else {
+                $('#overallRoastTime').val('');
             };
-
         });
         chartGauge.draw(dataGauge, optionsGauge);
-    }, 1*1000);
+    }, 1*2000);
 }
 
 //**************    Line chart for roasting stats ********//
@@ -119,23 +134,26 @@ function drawChartLines(pRoastLogId, pChartId, pInterval) {
                 chartLine.draw(tempData, materialOptions);
             }
         });
+        clearInterval(chartLinesInterval);
     }
 }
 
 // ************* Roasting button ************* 
 var myimgobj = document.images["jsbutton"];
-var jsbutton_clicked = 0;
 
-function roastBTNclicked()
-{
+
+//function roastBTNclicked()
+$('#fire_button').click( function() {
+    $('#fire_button').prop('disabled', true).css('opacity',0.5);
     //Start roast clicked
-    if ( jsbutton_clicked === 0 ) {
-        var tempSet = $('#roastTempMaxInput').val();
+    if ( roastStep === 0 ) {
+        var tempSet = $('#roastMaxTempInput').val();
         var coffeeName = $('#coffeeNameInput').val();
         var roastSize = $('#roastSizeInput').val();
-        var beansSize = $('input[name=beansSize]:checked').val();
-        var description = $('#descriptionInput').val();
-        if (coffeeName!='') {
+        var beansSize = $('input[name=beansSizeInput]:checked').val();
+        var description = $('#descrInput').val();
+        var after1stCrackTime = $('#roastTimeSetInput').val();
+        if (coffeeName!='' && after1stCrackTime != '') {
             $.ajax({
                 type:'get',
                 url:'/start/',
@@ -143,18 +161,19 @@ function roastBTNclicked()
                         "tempset":tempSet,
                         "coffeeName":coffeeName,
                         "roastSize":roastSize,
-                        "beansSize":beansSize
+                        "beansSize":beansSize,
+                        "after1stCrackTime":after1stCrackTime
                       },
                 cache:false,
                 async:true,
                 error: function(request, status, error) {
                     alert(error);
+
                 },
                 success: function (data) {
-                    $("fieldset").attr('disabled', 'disabled');
-                    jsbutton_clicked++;
-                    document.images["jsbutton"].src = images[jsbutton_clicked].src;
-                    $('#timer').html('<h2>00:00</h2>');
+                    disableForms();
+                    /*roastStep++;
+                    document.images["jsbutton"].src = images[roastStep].src;*/
                     roastLogId = data;
                     google.charts.setOnLoadCallback(drawChartLines(roastLogId, 'curve_chart', 5000));
                 }
@@ -165,7 +184,7 @@ function roastBTNclicked()
         }
     }
     // 1st crack encountered
-    else if ( jsbutton_clicked === 1 )    {
+    else if ( roastStep === 1 )    {
         $.ajax({
             type:'get',
             url:'/firstcrack/',
@@ -175,12 +194,11 @@ function roastBTNclicked()
                     alert(error);
                 },
             success: function (data) {
-                jsbutton_clicked++;
-                document.images["jsbutton"].src = images[jsbutton_clicked].src;
+                /*roastStep++;
+                document.images["jsbutton"].src = images[roastStep].src;*/
             }
         });
     }
-    // Stop roast clicked
     else {
         $.ajax({
             type:'get',
@@ -192,21 +210,19 @@ function roastBTNclicked()
                     alert(error);
                 },
             success: function (data) {
-                jsbutton_clicked = 0;
-                document.images["jsbutton"].src = images[jsbutton_clicked].src;
-                $("#roastDetailsForm").trigger('reset');
-                $("fieldset").removeAttr('disabled');
-                $('#timer').html('<h2>00:00</h2>');
-                clearInterval(chartLinesInterval);
-                $('#curve_chart').html('');
-                $('#1st_crack_label').html('');
-                $('#1st_crack_timer').html('');
-                $('#RoastTableContainer').jtable('load');
+                $('#fire_button').prop('disabled', false).css('opacity',1);
+                /*roastStep = 0;
+                document.images["jsbutton"].src = images[roastStep].src;*/
+                //$('#RoastTableContainer').jtable('load');
+                //google.charts.setOnLoadCallback(drawChartLines(roastLogId, 'curve_chart', 0));
+                drawChartLines(roastLogId, 'curve_chart', 0)
+                enableForms();
+                $('#LoadRecordsButton').click();
             }
         });
     }
     return true;
-}
+});
 
 function handleMUp()
 {
@@ -224,6 +240,26 @@ function powerOffBtnUp() {
     });
 }
 
+function disableForms() {
+    $('#coffeeNameInput').attr('disabled', 'disabled');
+    $('#roastSizeInput').attr('disabled', 'disabled');
+    $('#beansSizeInput').attr('disabled', 'disabled');
+    $("input[type='radio']").checkboxradio('disable');
+    $('#descrInput').attr('disabled', 'disabled');
+    $('#roastTimeSetInput').attr('disabled', 'disabled');
+    //$(".ml-make-grey").css("color", "grey");
+};
+
+function enableForms() {
+    $('#coffeeNameInput').attr('disabled', false);
+    $('#roastSizeInput').attr('disabled', false);
+    $('#beansSizeInput').attr('disabled', false);
+    $("input[type='radio']").checkboxradio('enable');
+    $('#descrInput').attr('disabled', false);
+    $('#roastTimeSetInput').attr('disabled', false);
+    $(".ml-make-grey").css("color", "black");
+};
+
 var images = new Array()
 function preload() {
     for (i = 0; i < preload.arguments.length; i++) {
@@ -239,10 +275,51 @@ $('document').ready(function () {
         "btn_blue.png",
         "btn_red.png"
     );
-    document.images["jsbutton"].src = images[0].src;
-    getRoastTempMax(function(data) {
-        $('#roastTempMaxInput').val(data[0].toString());
+
+    getInnitialState(function(data) {
+        //0 s.roast_log_id,
+        //1 s.roast_time,
+        //2 s.temp_set,
+        //3 s.status,
+        //4 s.first_crack_time,
+        //5 s.from_1crack_time,
+        //6 l.coffee_name,
+        //7 l.roast_size,
+        //8 l.beans_size,
+        //9 l.description,
+        //10 s.after_1crack_set
+        roastStep = data[3];
+        document.images["jsbutton"].src = images[roastStep].src;
+        $('#fire_button').prop('disabled', false).css('opacity',1);
+        //all but initial state
+        if (roastStep > 0) {
+            disableForms();
+            $('#roastMaxTempInput').val(data[2]);
+            $('#coffeeNameInput').val(data[6]);
+            $('#roastSizeInput').val(data[7]);
+            var zm = function(_data) {
+                if (_data==='large')
+                    return 1;
+                else return 0;
+            };
+            $("input[type='radio']:eq("+zm(data[8])+")").attr("checked", "checked");
+			$("input[type='radio']").checkboxradio("refresh");
+            $('#descrInput').val(data[9]);
+            $('#roastTimeSetInput').val(data[10]);
+            roastLogId = data[0];
+            //google.charts.setOnLoadCallback(drawChartLines(roastLogId, 'curve_chart', 5000));
+            drawChartLines(roastLogId, 'curve_chart', 5000)
+        }
+        else {
+            // Initial maximum roasting temp from dictionary
+            getRoastTempMax(function(data) {
+                roastTempMax = data[0].toString();
+                $('#roastTempMaxInput').val(data[0].toString());
+            });
+        }
     });
+
+    // On submit event of max temperature Input field
     $( '#roastTempMaxForm' ).submit(function( event ) {
         $.ajax({
             type:'get',
@@ -259,18 +336,29 @@ $('document').ready(function () {
         });
         event.preventDefault();
     });
-    $( '#btnCopyRoastForm' ).submit(function( event ) {
+
+    // On submit event of Roast data <to be modified>
+    $( '#pastRoastsFilterForm' ).submit(function( event ) {
         $('#coffeeNameInput').val(pastRoastData.coffee_name);
         $('#roastSizeInput').val(pastRoastData.roast_size);
-        console.log(pastRoastData.beans_size);
-        if (pastRoastData.beans_size) {
-            $('input[name=beansSize][value="'+ pastRoastData.beans_size + '"]').prop('checked', true);
-        }
-        $("#accordion").accordion({
-            active: 0
-        });
+        var zm = function(_data) {
+            if (_data==='large')
+                return 1;
+            else return 0;
+        };
+        $("input[type='radio']:eq("+zm(pastRoastData.beans_size)+")").attr("checked", "checked");
+        $("input[type='radio']").checkboxradio("refresh");
+        $('#descrInput').val(pastRoastData.description);
+
+
+            //$('#roastMaxTempInput').val(data[2]);
+            //$('#roastTimeSetInput').val(data[10]);
+
+
+
         event.preventDefault();
     });
+
     $('#RoastTableContainer').jtable({
         title: 'Roasts list',
         actions: {
@@ -290,7 +378,7 @@ $('document').ready(function () {
                 list: false
             },
             coffee_name: {
-                title: 'Coffee Name',
+                title: 'Name',
                 width: '35%'
             },
             date_time: {
@@ -301,22 +389,22 @@ $('document').ready(function () {
 //                displayFormat : 'yy-mm-dd H:i'
             },
             roast_size: {
-                title: 'Roast Size [g]',
+                title: 'Size[g]',
                 width: '10%'
             },
             beans_size: {
-                title: 'Beans Size',
+                title: 'Beans',
                 width: '10%',
                 options : { 'small':'Small', 'large':'Large'},
                 type : 'radiobutton'
             },
             first_crack_time: {
-                title: 'First crack at',
+                title: '1st crack',
                 width: '10%',
                 edit : false
             },
             crack_to_end: {
-                title: 'Crack to end',
+                title: 'From crack',
                 width: '10%',
                 edit : false
             },
@@ -340,26 +428,29 @@ $('document').ready(function () {
                     var record = $(this).data('record');
                     google.charts.setOnLoadCallback(drawChartLines(record.id, 'curve_chart_past', 0));
                     pastRoastData = record;
-                    $('#btnCopyRoastForm').html('<input id="btnCopyRoast" class="ui-button ui-widget ui-corner-all" type="submit" value="Copy selected roast">');
+                    $('#btnCopyRoast').button('enable');
                 });
             } else {
                 $('#curve_chart_past').html('');
-                $('#btnCopyRoastForm').html('');
+                $('#btnCopyRoast').button('disable');
             }
         }
     });
 
+
     //Re-load records when user click 'load records' button.
-    $('#pastRoastsFilterForm').submit(function (e) {
+    $('#pastRoastsFilterForm').keyup(function (e) { //bylo submit
 //	console.log($('#pastRoastsNameFilter').val());
         e.preventDefault();
         $('#RoastTableContainer').jtable('load', {
             jtNameFilter: $('#pastRoastsNameFilter').val()
         });
     });
- 
+
     //Load all records when page is first shown
     $('#LoadRecordsButton').click();
 
     $('#RoastTableContainer').jtable('load');
+    // Innitial parameters loading after page refresh
+
 });

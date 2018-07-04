@@ -21,7 +21,7 @@ port = 8888
 
 class TempLast(tornado.web.RequestHandler):
     def get(self):
-        data = DataAccess().getcurrentstate()
+        data = DataAccess().get_current_state()
         self.write(json.dumps(data))
 
 
@@ -39,39 +39,40 @@ class RoastStart(tornado.web.RequestHandler):
         coffee_name = self.get_argument("coffeeName", None, True)
         roast_size = self.get_argument("roastSize", None, True)
         beans_size = self.get_argument("beansSize", None, True)
-        data = DataAccess().startroasting(float(tempset), description, coffee_name, roast_size, beans_size)
+        after_1st_crack_time = self.get_argument("after1stCrackTime", None, True)
+        data = DataAccess().start_roasting(float(tempset), description, coffee_name, roast_size, beans_size, after_1st_crack_time)
         self.write(json.dumps(data))
 
 class RoastEnd(tornado.web.RequestHandler):
     def get(self):
         roast_log_id = self.get_argument("roast_log_id", None, True)
-        DataAccess().endroasting(roast_log_id)
+        DataAccess().end_roasting(roast_log_id)
 
 
 class FirstCrack(tornado.web.RequestHandler):
     def get(self):
-        DataAccess().setfirstcrack()
+        DataAccess().set_first_crack()
 
 
 class GetRoastTempMax(tornado.web.RequestHandler):
     def get(self):
-        data = DataAccess().getroasttempmax()
+        data = DataAccess().get_roast_temp_max()
         self.write(json.dumps(data))
 
 
 class SetRoastTempMax(tornado.web.RequestHandler):
     def get(self):
         tempset = self.get_argument("tempset", None, True)
-        DataAccess().setroasttempmax(tempset)
+        DataAccess().set_roast_temp_max(tempset)
 
 
 class GetRoastsList(tornado.web.RequestHandler):
     def post(self):
-	jt_name_filter = self.get_argument("jtNameFilter", None, True)
+        jt_name_filter = self.get_argument("jtNameFilter", None, True)
         jt_sorting = self.get_argument("jtSorting", None, True)
         jt_start_index = self.get_argument("jtStartIndex", None, True)
         jt_page_size = self.get_argument("jtPageSize", None, True)
-        roasts_list = DataAccess().getroastslist(jt_name_filter, jt_sorting, jt_start_index, jt_page_size)
+        roasts_list = DataAccess().get_roasts_list(jt_name_filter, jt_sorting, jt_start_index, jt_page_size)
         self.write(roasts_list)
 
 
@@ -91,6 +92,11 @@ class UpdatePastRoast(tornado.web.RequestHandler):
         DataAccess().update_past_roast(row_id, coffee_name, roast_size, beans_size, description)
         self.write(json.dumps({"Result":"OK"}))
 
+class GetInitialData(tornado.web.RequestHandler):
+    def get(self):
+        data = DataAccess().get_initial_data();
+        self.write(json.dumps(data))
+
 class PowerOff(tornado.web.RequestHandler):
     def get(self):
         os.system("sudo poweroff &")
@@ -107,6 +113,7 @@ application = tornado.web.Application([
     (r"/updatepastroast/", UpdatePastRoast),
     (r"/deleteroast/", DeletePastRoast),
     (r"/poweroff/", PowerOff),
+    (r"/init/", GetInitialData),
     (r"/(.*)", tornado.web.StaticFileHandler, {"path": root, "default_filename": "index.html"})
 ])
 
