@@ -93,11 +93,10 @@ class DataAccess:
         if roasting > 0:
             sqlq = "INSERT INTO roast_details (roast_log_id, roast_time, heating, temp_read, temp_set) "
             sqlq += "VALUES (?, "
-            sqlq += "    - (SELECT strftime('%M:%S', julianday('now', 'localtime') - julianday(roast_start_dt)) "
-            sqlq += "       FROM roast_status LIMIT 1), "
-            sqlq += "?, ?, ?)"
+            sqlq += "        (SELECT strftime('%M:%S', julianday('now', 'localtime') - julianday(roast_start_dt)) "
+            sqlq += "         FROM roast_status LIMIT 1), "
+            sqlq += "        ?, ?, ?)"
             c.execute(sqlq, (str(roast_log_id), str(heating), str(temp_read), str(temp_set)))
-
         sqlq = "UPDATE roast_status SET "
         sqlq += "temp_read = ?, "
         sqlq += "heating = ? "
