@@ -381,34 +381,39 @@ $('document').ready(function () {
             },
             date_time: {
                 title: 'Date',
-                width: '15%',
+                width: '10%',
                 edit : false//,
 //                type:  'date',
 //                displayFormat : 'yy-mm-dd H:i'
             },
             roast_size: {
                 title: 'Size[g]',
-                width: '10%'
+                width: '9%'
             },
             beans_size: {
                 title: 'Beans',
-                width: '10%',
+                width: '9%',
                 options : { 'small':'Small', 'large':'Large'},
                 type : 'radiobutton'
             },
             first_crack_time: {
                 title: '1st crack',
-                width: '10%',
+                width: '9%',
+                edit : false
+            },
+            after_1crack_set: {
+                title: 'Time set',
+                width: '9%',
                 edit : false
             },
             crack_to_end: {
                 title: 'From crack',
-                width: '10%',
+                width: '9%',
                 edit : false
             },
             start_to_end: {
                 title: 'Start to end',
-                width: '10%',
+                width: '9%',
                 edit : false
             },
             description: {

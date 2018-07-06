@@ -180,6 +180,7 @@ class DataAccess:
         sqlq += "beans_size, "
         sqlq += "description, "
         sqlq += "first_crack_time, "
+        sqlq += "after_1crack_set, "
         sqlq += "from_1crack_time as crack_to_end, "
         sqlq += "roast_end_time as start_to_end "
         sqlq += "FROM roast_log"
