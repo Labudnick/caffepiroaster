@@ -49,8 +49,14 @@ c.execute(sql)
 c.execute("CREATE INDEX IF NOT EXISTS idx_roast_details_fk ON roast_details(roast_log_id)")
 
 c.execute('CREATE TABLE IF NOT EXISTS parameters (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, value TEXT)')
-if c.execute('SELECT count(*) from parameters').fetchone()[0] == 0:
+if c.execute("SELECT count(*) from parameters WHERE name='roast_temp_max'").fetchone()[0] == 0:
     c.execute("INSERT INTO parameters (name, value) values ('roast_temp_max', '215')")
+    conn.commit()
+if c.execute("SELECT count(*) from parameters WHERE name='cooldown_temp'").fetchone()[0] == 0:
+    c.execute("INSERT INTO parameters (name, value) values ('cooldown_temp', '40')")
+    conn.commit()
+if c.execute("SELECT count(*) from parameters WHERE name='default_after_1crack'").fetchone()[0] == 0:
+    c.execute("INSERT INTO parameters (name, value) values ('default_after_1crack', '3:30')")
     conn.commit()
 
 if c.execute("select count(1) from roast_log where ifnull(roast_end_time, '') = ''").fetchone()[0] > 0:
@@ -103,8 +109,8 @@ class DataAccess:
         c.execute(sqlq, (str(temp_read), str(heating)))
         conn.commit()
 
-    def get_roast_temp_max(self):
-        return c.execute("SELECT value FROM parameters WHERE name='roast_temp_max'").fetchone()
+    def get_param_by_name(self, p_param_name):
+        return c.execute("SELECT value FROM parameters WHERE name=?", (p_param_name,)).fetchone()
 
     def start_roasting(self, temp_set, description, coffee_name, roast_size, beans_size, after_1st_crack_time):
         sqlq = "INSERT INTO roast_log (description, coffee_name, roast_size, beans_size, after_1crack_set) "

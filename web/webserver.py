@@ -54,9 +54,10 @@ class FirstCrack(tornado.web.RequestHandler):
         DataAccess().set_first_crack()
 
 
-class GetRoastTempMax(tornado.web.RequestHandler):
+class GetParamByName(tornado.web.RequestHandler):
     def get(self):
-        data = DataAccess().get_roast_temp_max()
+        param_name = self.get_argument("paramName", None, True)
+        data = DataAccess().get_param_by_name(param_name)
         self.write(json.dumps(data))
 
 
@@ -107,7 +108,7 @@ application = tornado.web.Application([
     (r"/start/", RoastStart),
     (r"/end/", RoastEnd),
     (r"/firstcrack/", FirstCrack),
-    (r"/getroasttempmax/", GetRoastTempMax),
+    (r"/getparambyname/", GetParamByName),
     (r"/setroasttempmax/", SetRoastTempMax),
     (r"/roastslist/", GetRoastsList),
     (r"/updatepastroast/", UpdatePastRoast),

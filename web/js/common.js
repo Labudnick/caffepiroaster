@@ -9,9 +9,9 @@ var roastStep = 0;
 var roastTempMax;
 
 //**************    Data access functions ********//
-function getRoastTempMax( callback)  {
-    $.getJSON('/getroasttempmax/', function( data ) {
-        callback(data);
+function getParamByName(_paramName, callback)  {
+    $.getJSON('/getparambyname/', {'paramName': _paramName}, function( data ) {
+        callback( data );
     });
 };
 
@@ -304,10 +304,15 @@ $('document').ready(function () {
         }
         else {
             // Initial maximum roasting temp from dictionary
-            getRoastTempMax(function(data) {
+            getParamByName('roast_temp_max', function(data) {
                 roastTempMax = data[0].toString();
                 $('#roastMaxTempInput').val(data[0].toString());
             });
+            getParamByName('default_after_1crack', function(data) {
+                var default_after_1crack = data[0].toString();
+                $('#roastTimeSetInput').val(default_after_1crack);
+            });
+
         }
     });
 

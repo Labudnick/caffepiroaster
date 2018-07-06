@@ -51,10 +51,10 @@ def isnan(num):
 
 
 # Variables
-roasting_temp = DataAccess().get_roast_temp_max()
+roasting_temp = DataAccess().get_param_by_name('roast_temp_max')
 roasting_delta = 0
 heat = 0
-cooldown_temp = 35
+cooldown_temp = DataAccess().get_param_by_name('cooldown_temp')
 cooldown = 0;
 
 def scantempwrite(p_heat, p_roast_status):
