@@ -232,16 +232,6 @@ function handleMUp()
     return true;
 }
 
-function powerOffBtnUp() {
-    $.ajax({
-        type:'get',
-        url:'/poweroff/',
-        error: function(request, status, error) {
-                alert(error);
-            }
-    });
-}
-
 function disableForms() {
     $('#coffeeNameInput').attr('disabled', 'disabled');
     $('#roastSizeInput').attr('disabled', 'disabled');
@@ -448,6 +438,16 @@ $('document').ready(function () {
         $('#RoastTableContainer').jtable('load', {
             jtNameFilter: $('#pastRoastsNameFilter').val()
         });
+    });
+
+    $('#btnTurnOff').click(function(e) {
+        $.ajax({
+            type:'get',
+            url:'/poweroff/',
+            error: function(request, status, error) {
+                    alert(error);
+                }
+            });
     });
 
     //Load all records when page is first shown
