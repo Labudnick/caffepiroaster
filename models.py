@@ -33,7 +33,8 @@ sql += "description      TEXT, "
 sql += "first_crack_time TEXT, "
 sql += "roast_end_time   TEXT, "
 sql += "from_1crack_time TEXT, "
-sql += "after_1crack_set TEXT)"
+sql += "after_1crack_set TEXT, "
+sql += "temp_set REAL)"
 c.execute(sql)
 
 sql = "CREATE TABLE IF NOT EXISTS roast_details ("
@@ -132,8 +133,11 @@ class DataAccess:
         sqlq += "SET roast_end_time = (SELECT strftime('%M:%S', julianday('now', 'localtime') - julianday(roast_start_dt)) "
         sqlq += "                      FROM roast_status LIMIT 1), "
         sqlq += "    from_1crack_time = (SELECT strftime('%M:%S', julianday('now', 'localtime') - julianday(first_crack_dt)) "
-        sqlq += "                      FROM roast_status LIMIT 1) "
+        sqlq += "                      FROM roast_status LIMIT 1), "
+        sqlq += "    temp_set = (SELECT temp_set FROM roast_details WHERE id=(SELECT max(id) FROM roast_details "
+        sqlq += "                                                             WHERE roast_log_id = roast_log.id)) "
         sqlq += "WHERE id = ?"
+        print (sqlq)
         c.execute(sqlq, (roast_log_id,))
         c.execute("DELETE FROM roast_status")
         c.execute("INSERT INTO roast_status (status) VALUES (0)")
