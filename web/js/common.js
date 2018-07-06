@@ -314,24 +314,25 @@ $('document').ready(function () {
             // Initial maximum roasting temp from dictionary
             getRoastTempMax(function(data) {
                 roastTempMax = data[0].toString();
-                $('#roastTempMaxInput').val(data[0].toString());
+                $('#roastMaxTempInput').val(data[0].toString());
             });
         }
     });
 
     // On submit event of max temperature Input field
-    $( '#roastTempMaxForm' ).submit(function( event ) {
+    //$( '#roastMaxTempInput' ).keyup(function( event ) {
+    $('#roastMaxTempInput').on('change', function() { //keyup
         $.ajax({
             type:'get',
                 url:'/setroasttempmax/',
-                data: {"tempset":$('#roastTempMaxInput').val()},
+                data: {"tempset":$('#roastMaxTempInput').val()},
                 cache:false,
                 async:true,
                 error: function(request, status, error) {
                         alert(error);
                 },
                 success: function (data) {
-                    $( "#messages_field" ).text( "Updated" ).show().fadeOut( 1500 );
+                    $( "#messages_field" ).text( "Max temp updated" ).show().fadeOut( 1500 );
                 }
         });
         event.preventDefault();
