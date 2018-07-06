@@ -355,7 +355,7 @@ $('document').ready(function () {
             //$('#roastMaxTempInput').val(data[2]);
             //$('#roastTimeSetInput').val(data[10]);
 
-
+        $( "#collapsible_roast_input" ).collapsible( "option", "collapsed", false );
 
         event.preventDefault();
     });
