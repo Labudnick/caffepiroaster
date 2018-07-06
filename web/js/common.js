@@ -347,6 +347,7 @@ $('document').ready(function () {
         $("input[type='radio']:eq("+zm(pastRoastData.beans_size)+")").attr("checked", "checked");
         $("input[type='radio']").checkboxradio("refresh");
         $('#descrInput').val(pastRoastData.description);
+        $('#roastTimeSetInput').val(pastRoastData.after_1crack_set);
 
 
             //$('#roastMaxTempInput').val(data[2]);
