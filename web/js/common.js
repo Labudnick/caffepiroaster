@@ -217,7 +217,9 @@ $('#fire_button').click( function() {
                 //google.charts.setOnLoadCallback(drawChartLines(roastLogId, 'curve_chart', 0));
                 drawChartLines(roastLogId, 'curve_chart', 0)
                 enableForms();
-                $('#LoadRecordsButton').click();
+                //$('#LoadRecordsButton').click();
+                $('#pastRoastsNameFilter').val('');
+                $('#pastRoastsFilterForm').keyup();
             }
         });
     }
@@ -449,7 +451,7 @@ $('document').ready(function () {
     });
 
     //Load all records when page is first shown
-    $('#LoadRecordsButton').click();
+//    $('#LoadRecordsButton').click();
 
     $('#RoastTableContainer').jtable('load');
     // Innitial parameters loading after page refresh
