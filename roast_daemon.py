@@ -51,11 +51,11 @@ def isnan(num):
 
 
 # Variables
-roasting_temp = DataAccess().get_param_by_name('roast_temp_max')
+roasting_temp = float(DataAccess().get_param_by_name('roast_temp_max')[0])
 roasting_delta = 0
 heat = 0
-cooldown_temp = DataAccess().get_param_by_name('cooldown_temp')
-cooldown = 0;
+cooldown_temp = float(DataAccess().get_param_by_name('cooldown_temp')[0])
+cooldown = 0
 
 def scantempwrite(p_heat, p_roast_status):
     l_sens_temp = round(sensor.readTempC(),0)
@@ -104,6 +104,9 @@ while True:
         heat = 0
 
         GPIO.output(relay_heater, relay_off)
+
+        print (type(cooldown_temp))
+
         while sens_temp > cooldown_temp:
             time.sleep(1)
             roastStatus = DataAccess().check_roasting()
